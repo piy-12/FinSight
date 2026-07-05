@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -11,6 +12,24 @@ model User {
   name      String
   email     String   @unique
   password  String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  profile   UserProfile?
+}
+
+model UserProfile {
+  id              String   @id @default(uuid())
+
+  monthlyIncome   Decimal
+  savingsGoal     Decimal
+
+  currency        String   @default("INR")
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id])
 }
