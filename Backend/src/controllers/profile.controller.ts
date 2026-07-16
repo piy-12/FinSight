@@ -57,7 +57,7 @@ export const getProfile = async (
 
   try {
 
-    const userId = req.user?.id;
+    const userId = req.user?.userId;
 
     const profile = await prisma.userProfile.findUnique({
       where: {
@@ -102,7 +102,7 @@ export const updateProfile = async (
 
   try {
 
-    const userId = req.user?.id;
+    const userId = req.user?.userId;
 
     const { monthlyIncome, savingsGoal } = req.body;
 
@@ -128,6 +128,5 @@ export const updateProfile = async (
       success: false,
       message: "Internal Server Error"
     });
-
   }
 };

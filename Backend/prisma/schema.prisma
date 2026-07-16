@@ -17,6 +17,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   profile   UserProfile?
+  expenses  Expense[]
 }
 
 model UserProfile {
@@ -27,9 +28,45 @@ model UserProfile {
 
   currency        String   @default("INR")
 
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   userId          String   @unique
   user            User     @relation(fields: [userId], references: [id])
+}
+
+enum ExpenseCategory {
+  FOOD
+  RENT
+  TRANSPORT
+  SHOPPING
+  ENTERTAINMENT
+  LIFESTYLE
+  HEALTH
+  EDUCATION
+  UTILITIES
+  TRAVEL
+  DATING
+  OTHER
+}
+
+model Expense {
+  id          String            @id @default(uuid())
+
+  amount      Decimal
+
+  category    ExpenseCategory
+
+  notes       String?
+
+  expenseDate DateTime
+
+  receiptUrl  String?
+
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  userId      String
+  user        User              @relation(fields: [userId], references: [id])
 }
