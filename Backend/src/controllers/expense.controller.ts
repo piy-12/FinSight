@@ -9,13 +9,13 @@ export const createExpense = async (
   try {
 
     const userId = req.user?.userId;
-
+    
     const {
       amount,
       category,
       notes,
       expenseDate,
-      receiptImageUrl
+      receiptUrl
     } = req.body;
 
     const expense = await prisma.expense.create({
@@ -30,8 +30,7 @@ export const createExpense = async (
 
         expenseDate: new Date(expenseDate),
 
-        receiptImageUrl,
-
+        receiptUrl,
         userId: userId!
 
       }
