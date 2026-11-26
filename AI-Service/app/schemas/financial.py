@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from decimal import Decimal
 from datetime import datetime
 from typing import Optional
@@ -35,6 +35,15 @@ class CategorySummary(BaseModel):
     transactionCount: int
 
 
+class MonthlyTrendItem(BaseModel):
+
+    month: str  # e.g., "2026-11"
+
+    totalSpent: Decimal
+
+    transactionCount: int
+
+
 class FinancialSummary(BaseModel):
 
     monthlyIncome: Decimal
@@ -61,3 +70,46 @@ class FinancialContext(BaseModel):
     summary: FinancialSummary
 
     recentExpenses: list[ExpenseItem]
+
+
+class CompleteFinancialContext(BaseModel):
+
+    profile: UserFinancialProfile
+
+    # Current month budget tracking
+    monthlySpendingBudget: Decimal
+
+    currentMonthSpent: Decimal
+
+    currentMonthRemainingBudget: Decimal
+
+    # All-time complete metrics
+    totalAllTimeSpent: Decimal
+
+    totalAllTimeTransactions: int
+
+    averageMonthlySpend: Decimal
+
+    allTimeTopCategory: Optional[str]
+
+    allTimeCategoryBreakdown: list[CategorySummary]
+
+    monthlyTrend: list[MonthlyTrendItem]
+
+    allExpenses: list[ExpenseItem]
+
+
+class ChatRequest(BaseModel):
+
+    message: str = Field(..., min_length=1)
+
+    thread_id: Optional[str] = None
+
+
+class ChatResponse(BaseModel):
+
+    success: bool = True
+
+    reply: str
+
+    thread_id: str

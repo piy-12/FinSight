@@ -19,6 +19,10 @@ export type ExpenseStackParamList = {
   OCRScan: undefined;
 };
 
+export type AdvisorStackParamList = {
+  AdvisorChat: undefined;
+};
+
 export type ProfileStackParamList = {
   ViewProfile: undefined;
   EditProfile: undefined;
@@ -31,6 +35,7 @@ export type SettingsStackParamList = {
 export type MainTabParamList = {
   DashboardTab: NavigatorScreenParams<DashboardStackParamList>;
   ExpensesTab: NavigatorScreenParams<ExpenseStackParamList>;
+  AdvisorTab: NavigatorScreenParams<AdvisorStackParamList>;
   ProfileTab: NavigatorScreenParams<ProfileStackParamList>;
   SettingsTab: NavigatorScreenParams<SettingsStackParamList>;
 };

@@ -5,6 +5,7 @@ import { MainTabParamList } from '../types/navigation';
 import { useTheme } from '../theme/ThemeContext';
 import { DashboardNavigator } from './DashboardNavigator';
 import { ExpenseNavigator } from './ExpenseNavigator';
+import { AdvisorNavigator } from './AdvisorNavigator';
 import { ProfileNavigator } from './ProfileNavigator';
 import { SettingsNavigator } from './SettingsNavigator';
 
@@ -13,6 +14,7 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 const ICONS: Record<keyof MainTabParamList, string> = {
   DashboardTab: 'view-dashboard-outline',
   ExpensesTab: 'receipt-text-outline',
+  AdvisorTab: 'robot-happy-outline',
   ProfileTab: 'account-outline',
   SettingsTab: 'cog-outline',
 };
@@ -52,6 +54,11 @@ export const MainTabNavigator: React.FC = () => {
         name="ExpensesTab"
         component={ExpenseNavigator}
         options={{ title: 'Expenses' }}
+      />
+      <Tab.Screen
+        name="AdvisorTab"
+        component={AdvisorNavigator}
+        options={{ title: 'AI Advisor' }}
       />
       <Tab.Screen
         name="ProfileTab"

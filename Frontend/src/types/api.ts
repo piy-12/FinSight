@@ -52,6 +52,18 @@ export interface CreateExpenseRequest {
   receiptUrl?: string;
 }
 
+// ---- AI Advisor ----
+export interface AiChatRequest {
+  message: string;
+  thread_id?: string;
+}
+
+export interface AiChatResponse {
+  success: boolean;
+  reply: string;
+  thread_id: string;
+}
+
 export type UpdateExpenseRequest = Partial<CreateExpenseRequest>;
 
 export type ExpenseResponse = ApiSuccess<Expense>;

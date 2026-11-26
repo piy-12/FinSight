@@ -1,0 +1,5232 @@
+﻿=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\components\buttons\FAB.tsx ===
+import React from 'react';
+import { GestureResponderEvent, StyleSheet, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useTheme } from '../../theme/ThemeContext';
+
+interface FABProps {
+  icon?: string;
+  onPress: (e: GestureResponderEvent) => void;
+}
+
+export const FAB: React.FC<FABProps> = ({ icon = 'plus', onPress }) => {
+  const { colors, shadow } = useTheme();
+
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.85}
+      style={[
+        styles.fab,
+        { backgroundColor: colors.primary },
+        shadow.lg,
+      ]}
+      accessibilityLabel="Add expense"
+      accessibilityRole="button"
+    >
+      <Icon name={icon} size={28} color={colors.onPrimary} />
+    </TouchableOpacity>
+  );
+};
+
+const styles = StyleSheet.create({
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 24,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\components\buttons\IconButton.tsx ===
+import React from 'react';
+import { GestureResponderEvent, TouchableOpacity, ViewStyle } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useTheme } from '../../theme/ThemeContext';
+
+interface IconButtonProps {
+  icon: string;
+  onPress: (e: GestureResponderEvent) => void;
+  size?: number;
+  color?: string;
+  backgroundColor?: string;
+  style?: ViewStyle;
+  accessibilityLabel?: string;
+}
+
+export const IconButton: React.FC<IconButtonProps> = ({
+  icon,
+  onPress,
+  size = 22,
+  color,
+  backgroundColor,
+  style,
+  accessibilityLabel,
+}) => {
+  const { colors, radius } = useTheme();
+
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.7}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityRole="button"
+      style={[
+        {
+          width: size + 24,
+          height: size + 24,
+          borderRadius: radius.pill,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: backgroundColor ?? colors.surfaceAlt,
+        },
+        style,
+      ]}
+    >
+      <Icon name={icon} size={size} color={color ?? colors.textPrimary} />
+    </TouchableOpacity>
+  );
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\components\buttons\PrimaryButton.tsx ===
+import React from 'react';
+import {
+  ActivityIndicator,
+  GestureResponderEvent,
+  StyleSheet,
+  TouchableOpacity,
+  ViewStyle,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useTheme } from '../../theme/ThemeContext';
+import { AppText } from '../common/AppText';
+
+type Variant = 'solid' | 'outline' | 'ghost' | 'danger';
+
+interface PrimaryButtonProps {
+  label: string;
+  onPress: (e: GestureResponderEvent) => void;
+  variant?: Variant;
+  disabled?: boolean;
+  loading?: boolean;
+  icon?: string;
+  style?: ViewStyle;
+  fullWidth?: boolean;
+}
+
+export const PrimaryButton: React.FC<PrimaryButtonProps> = ({
+  label,
+  onPress,
+  variant = 'solid',
+  disabled = false,
+  loading = false,
+  icon,
+  style,
+  fullWidth = true,
+}) => {
+  const { colors, spacing, radius } = useTheme();
+  const isDisabled = disabled || loading;
+
+  const backgroundColor =
+    variant === 'solid'
+      ? colors.primary
+      : variant === 'danger'
+      ? colors.danger
+      : 'transparent';
+
+  const borderColor = variant === 'outline' ? colors.primary : 'transparent';
+
+  const textColor =
+    variant === 'solid' || variant === 'danger'
+      ? colors.onPrimary
+      : variant === 'outline'
+      ? colors.primary
+      : colors.textSecondary;
+
+  return (
+    <TouchableOpacity
+      activeOpacity={0.85}
+      disabled={isDisabled}
+      onPress={onPress}
+      style={[
+        styles.base,
+        {
+          backgroundColor,
+          borderColor,
+          borderWidth: variant === 'outline' ? 1.5 : 0,
+          borderRadius: radius.md,
+          paddingVertical: spacing.sm,
+          paddingHorizontal: spacing.md,
+          opacity: isDisabled ? 0.6 : 1,
+          alignSelf: fullWidth ? 'stretch' : 'flex-start',
+        },
+        style,
+      ]}
+    >
+      {loading ? (
+        <ActivityIndicator color={textColor} size="small" />
+      ) : (
+        <>
+          {icon ? (
+            <Icon
+              name={icon}
+              size={18}
+              color={textColor}
+              style={{ marginRight: spacing.xxs }}
+            />
+          ) : null}
+          <AppText
+            variant="bodyMedium"
+            style={{ color: textColor }}
+            align="center"
+          >
+            {label}
+          </AppText>
+        </>
+      )}
+    </TouchableOpacity>
+  );
+};
+
+const styles = StyleSheet.create({
+  base: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 48,
+  },
+});
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\components\cards\BudgetCard.tsx ===
+import React from 'react';
+import { View } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useTheme } from '../../theme/ThemeContext';
+import { AppText } from '../common/AppText';
+import { Card } from './Card';
+import { formatCurrency } from '../../utils/formatters';
+
+interface BudgetCardProps {
+  label: string;
+  amount: number;
+  currency?: string;
+  icon: string;
+  tone: 'primary' | 'success' | 'danger' | 'warning';
+}
+
+export const BudgetCard: React.FC<BudgetCardProps> = ({
+  label,
+  amount,
+  currency = 'USD',
+  icon,
+  tone,
+}) => {
+  const { colors, spacing, radius } = useTheme();
+
+  const toneColor = {
+    primary: colors.primary,
+    success: colors.success,
+    danger: colors.danger,
+    warning: colors.warning,
+  }[tone];
+
+  const toneBg = {
+    primary: colors.primaryLight,
+    success: colors.successBg,
+    danger: colors.dangerBg,
+    warning: colors.warningBg,
+  }[tone];
+
+  return (
+    <Card style={{ flex: 1 }}>
+      <View
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: radius.sm,
+          backgroundColor: toneBg,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: spacing.xs,
+        }}
+      >
+        <Icon name={icon} size={18} color={toneColor} />
+      </View>
+      <AppText variant="caption" color="muted">
+        {label}
+      </AppText>
+      <View style={{ marginTop: 2 }}>
+        <AppText variant="numericMedium" numberOfLines={1} adjustsFontSizeToFit>
+          {formatCurrency(amount, currency)}
+        </AppText>
+      </View>
+    </Card>
+  );
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\components\cards\Card.tsx ===
+import React, { PropsWithChildren } from 'react';
+import { TouchableOpacity, View, ViewStyle } from 'react-native';
+import { useTheme } from '../../theme/ThemeContext';
+
+interface CardProps extends PropsWithChildren {
+  style?: ViewStyle;
+  onPress?: () => void;
+  padded?: boolean;
+  elevated?: boolean;
+}
+
+export const Card: React.FC<CardProps> = ({
+  children,
+  style,
+  onPress,
+  padded = true,
+  elevated = true,
+}) => {
+  const { colors, spacing, radius, shadow } = useTheme();
+
+  const containerStyle: ViewStyle = {
+    backgroundColor: colors.card,
+    borderRadius: radius.md,
+    borderWidth: elevated ? 0 : 1,
+    borderColor: colors.border,
+    padding: padded ? spacing.md : 0,
+    ...(elevated ? shadow.sm : {}),
+  };
+
+  if (onPress) {
+    return (
+      <TouchableOpacity
+        activeOpacity={0.85}
+        onPress={onPress}
+        style={[containerStyle, style]}
+      >
+        {children}
+      </TouchableOpacity>
+    );
+  }
+
+  return <View style={[containerStyle, style]}>{children}</View>;
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\components\cards\ExpenseListItem.tsx ===
+import React from 'react';
+import { TouchableOpacity, View } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useTheme } from '../../theme/ThemeContext';
+import { AppText } from '../common/AppText';
+import { Expense } from '../../types/models';
+import { CATEGORY_META } from '../../constants/categories';
+import { formatCurrency, formatDateShort } from '../../utils/formatters';
+
+interface ExpenseListItemProps {
+  expense: Expense;
+  currency?: string;
+  onPress?: () => void;
+}
+
+export const ExpenseListItem: React.FC<ExpenseListItemProps> = ({
+  expense,
+  currency = 'USD',
+  onPress,
+}) => {
+  const { colors, spacing, radius } = useTheme();
+  const meta = CATEGORY_META[expense.category] ?? {
+    label: expense.category,
+    icon: 'shape-outline',
+  };
+
+  return (
+    <TouchableOpacity
+      activeOpacity={onPress ? 0.7 : 1}
+      onPress={onPress}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: spacing.sm,
+      }}
+    >
+      <View
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: radius.sm,
+          backgroundColor: colors.surfaceAlt,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginRight: spacing.sm,
+        }}
+      >
+        <Icon name={meta.icon} size={20} color={colors.primary} />
+      </View>
+
+      <View style={{ flex: 1 }}>
+        <AppText variant="bodyMedium" numberOfLines={1}>
+          {meta.label}
+        </AppText>
+        <AppText variant="caption" color="muted">
+          {formatDateShort(expense.expenseDate)}
+          {expense.notes ? `  Â·  ${expense.notes}` : ''}
+        </AppText>
+      </View>
+
+      <AppText variant="bodyMedium">
+        {formatCurrency(expense.amount, currency)}
+      </AppText>
+    </TouchableOpacity>
+  );
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\components\charts\CategoryPieChart.tsx ===
+import React from 'react';
+import { View } from 'react-native';
+import Svg, { Path, Circle } from 'react-native-svg';
+import { useTheme } from '../../theme/ThemeContext';
+import { AppText } from '../common/AppText';
+import { CATEGORY_META } from '../../constants/categories';
+import { ExpenseCategory } from '../../types/models';
+import { formatCurrency } from '../../utils/formatters';
+
+interface CategoryPieChartProps {
+  breakdown: Record<string, number>;
+  currency?: string;
+  size?: number;
+}
+
+interface Slice {
+  category: string;
+  value: number;
+  percentage: number;
+  color: string;
+}
+
+function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
+  const angleRad = ((angleDeg - 90) * Math.PI) / 180;
+  return {
+    x: cx + r * Math.cos(angleRad),
+    y: cy + r * Math.sin(angleRad),
+  };
+}
+
+function describeArc(
+  cx: number,
+  cy: number,
+  r: number,
+  startAngle: number,
+  endAngle: number,
+) {
+  const start = polarToCartesian(cx, cy, r, endAngle);
+  const end = polarToCartesian(cx, cy, r, startAngle);
+  const largeArcFlag = endAngle - startAngle <= 180 ? '0' : '1';
+  return [
+    `M ${cx} ${cy}`,
+    `L ${start.x} ${start.y}`,
+    `A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y}`,
+    'Z',
+  ].join(' ');
+}
+
+export const CategoryPieChart: React.FC<CategoryPieChartProps> = ({
+  breakdown,
+  currency = 'USD',
+  size = 220,
+}) => {
+  const { colors, spacing } = useTheme();
+  const entries = Object.entries(breakdown).filter(([, v]) => v > 0);
+  const total = entries.reduce((sum, [, v]) => sum + v, 0);
+
+  if (!entries.length || total <= 0) {
+    return (
+      <View
+        style={{
+          height: size,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <AppText variant="body" color="muted">
+          No spending data yet
+        </AppText>
+      </View>
+    );
+  }
+
+  let cursor = 0;
+  const slices: Slice[] = entries
+    .sort((a, b) => b[1] - a[1])
+    .map(([category, value], index) => {
+      const percentage = (value / total) * 100;
+      const slice: Slice = {
+        category,
+        value,
+        percentage,
+        color: colors.chartPalette[index % colors.chartPalette.length],
+      };
+      return slice;
+    });
+
+  const radius = size / 2;
+  const strokeInset = 2;
+
+  return (
+    <View>
+      <View style={{ alignItems: 'center' }}>
+        <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+          {slices.map(slice => {
+            const angleSpan = (slice.value / total) * 360;
+            const startAngle = cursor;
+            const endAngle = cursor + angleSpan;
+            cursor = endAngle;
+            return (
+              <Path
+                key={slice.category}
+                d={describeArc(
+                  radius,
+                  radius,
+                  radius - strokeInset,
+                  startAngle,
+                  endAngle,
+                )}
+                fill={slice.color}
+                stroke={colors.surface}
+                strokeWidth={2}
+              />
+            );
+          })}
+          <Circle cx={radius} cy={radius} r={radius * 0.55} fill={colors.surface} />
+        </Svg>
+        <View style={{ position: 'absolute', alignItems: 'center' }}>
+          <AppText variant="caption" color="muted">
+            Total Spent
+          </AppText>
+          <AppText variant="numericMedium">
+            {formatCurrency(total, currency)}
+          </AppText>
+        </View>
+      </View>
+
+      <View style={{ marginTop: spacing.md }}>
+        {slices.map(slice => {
+          const meta = CATEGORY_META[slice.category as ExpenseCategory];
+          return (
+            <View
+              key={slice.category}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingVertical: spacing.xxs,
+              }}
+            >
+              <View
+                style={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: 5,
+                  backgroundColor: slice.color,
+                  marginRight: spacing.xs,
+                }}
+              />
+              <View style={{ flex: 1 }}>
+                <AppText variant="body">
+                  {meta?.label ?? slice.category}
+                </AppText>
+              </View>
+              <AppText variant="bodyMedium" color="secondary">
+                {slice.percentage.toFixed(0)}%
+              </AppText>
+              <View style={{ width: spacing.sm }} />
+              <AppText variant="bodyMedium">
+                {formatCurrency(slice.value, currency)}
+              </AppText>
+            </View>
+          );
+        })}
+      </View>
+    </View>
+  );
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\components\common\AppText.tsx ===
+import React from 'react';
+import { Text, TextProps, TextStyle } from 'react-native';
+import { useTheme } from '../../theme/ThemeContext';
+
+type Variant =
+  | 'display'
+  | 'h1'
+  | 'h2'
+  | 'h3'
+  | 'bodyLarge'
+  | 'body'
+  | 'bodyMedium'
+  | 'caption'
+  | 'overline'
+  | 'numericLarge'
+  | 'numericMedium';
+
+type ColorVariant =
+  | 'primary'
+  | 'secondary'
+  | 'muted'
+  | 'inverse'
+  | 'success'
+  | 'danger'
+  | 'warning'
+  | 'brand';
+
+interface AppTextProps extends TextProps {
+  variant?: Variant;
+  color?: ColorVariant;
+  align?: TextStyle['textAlign'];
+}
+
+export const AppText: React.FC<AppTextProps> = ({
+  variant = 'body',
+  color = 'primary',
+  align,
+  style,
+  children,
+  ...rest
+}) => {
+  const { colors, typography } = useTheme();
+
+  const colorMap: Record<ColorVariant, string> = {
+    primary: colors.textPrimary,
+    secondary: colors.textSecondary,
+    muted: colors.textMuted,
+    inverse: colors.textInverse,
+    success: colors.success,
+    danger: colors.danger,
+    warning: colors.warning,
+    brand: colors.primary,
+  };
+
+  return (
+    <Text
+      style={[
+        typography[variant],
+        { color: colorMap[color], textAlign: align },
+        style,
+      ]}
+      {...rest}
+    >
+      {children}
+    </Text>
+  );
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\components\common\EmptyState.tsx ===
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useTheme } from '../../theme/ThemeContext';
+import { AppText } from './AppText';
+import { PrimaryButton } from '../buttons/PrimaryButton';
+
+interface EmptyStateProps {
+  icon?: string;
+  title: string;
+  description?: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}
+
+export const EmptyState: React.FC<EmptyStateProps> = ({
+  icon = 'inbox-outline',
+  title,
+  description,
+  actionLabel,
+  onAction,
+}) => {
+  const { colors, spacing, radius } = useTheme();
+
+  return (
+    <View style={[styles.container, { padding: spacing.xl }]}>
+      <View
+        style={[
+          styles.iconWrap,
+          {
+            backgroundColor: colors.surfaceAlt,
+            borderRadius: radius.pill,
+            marginBottom: spacing.md,
+          },
+        ]}
+      >
+        <Icon name={icon} size={36} color={colors.textMuted} />
+      </View>
+      <AppText variant="h3" align="center">
+        {title}
+      </AppText>
+      {description ? (
+        <View style={{ marginTop: spacing.xxs }}>
+          <AppText variant="body" color="secondary" align="center">
+            {description}
+          </AppText>
+        </View>
+      ) : null}
+      {actionLabel && onAction ? (
+        <View style={{ marginTop: spacing.lg, alignSelf: 'stretch' }}>
+          <PrimaryButton label={actionLabel} onPress={onAction} />
+        </View>
+      ) : null}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconWrap: {
+    width: 72,
+    height: 72,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\components\common\ErrorState.tsx ===
+import React from 'react';
+import { StyleSheet, View } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useTheme } from '../../theme/ThemeContext';
+import { AppText } from './AppText';
+import { PrimaryButton } from '../buttons/PrimaryButton';
+
+interface ErrorStateProps {
+  title?: string;
+  message?: string;
+  onRetry?: () => void;
+}
+
+export const ErrorState: React.FC<ErrorStateProps> = ({
+  title = 'Something went wrong',
+  message = 'Please check your connection and try again.',
+  onRetry,
+}) => {
+  const { colors, spacing } = useTheme();
+
+  return (
+    <View style={[styles.container, { padding: spacing.xl }]}>
+      <Icon name="alert-circle-outline" size={40} color={colors.danger} />
+      <View style={{ marginTop: spacing.md }}>
+        <AppText variant="h3" align="center">
+          {title}
+        </AppText>
+      </View>
+      <View style={{ marginTop: spacing.xxs }}>
+        <AppText variant="body" color="secondary" align="center">
+          {message}
+        </AppText>
+      </View>
+      {onRetry ? (
+        <View style={{ marginTop: spacing.lg, alignSelf: 'stretch' }}>
+          <PrimaryButton label="Try Again" onPress={onRetry} variant="outline" />
+        </View>
+      ) : null}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\components\common\LoadingIndicator.tsx ===
+import React from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { useTheme } from '../../theme/ThemeContext';
+import { AppText } from './AppText';
+
+interface LoadingIndicatorProps {
+  fullScreen?: boolean;
+  label?: string;
+  size?: 'small' | 'large';
+}
+
+export const LoadingIndicator: React.FC<LoadingIndicatorProps> = ({
+  fullScreen = false,
+  label,
+  size = 'large',
+}) => {
+  const { colors, spacing } = useTheme();
+
+  return (
+    <View
+      style={[
+        styles.container,
+        fullScreen && { flex: 1, backgroundColor: colors.background },
+        { padding: spacing.lg },
+      ]}
+    >
+      <ActivityIndicator size={size} color={colors.primary} />
+      {label ? (
+        <View style={{ marginTop: spacing.sm }}>
+          <AppText variant="body" color="muted" align="center">
+            {label}
+          </AppText>
+        </View>
+      ) : null}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\components\common\Screen.tsx ===
+import React, { PropsWithChildren } from 'react';
+import {
+  RefreshControl,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  View,
+  ViewStyle,
+} from 'react-native';
+import { SafeAreaView, Edge } from 'react-native-safe-area-context';
+import { useTheme } from '../../theme/ThemeContext';
+
+interface ScreenProps extends PropsWithChildren {
+  scroll?: boolean;
+  padded?: boolean;
+  edges?: Edge[];
+  style?: ViewStyle;
+  contentContainerStyle?: ViewStyle;
+  refreshing?: boolean;
+  onRefresh?: () => void;
+}
+
+export const Screen: React.FC<ScreenProps> = ({
+  children,
+  scroll = false,
+  padded = true,
+  edges = ['top', 'left', 'right'],
+  style,
+  contentContainerStyle,
+  refreshing,
+  onRefresh,
+}) => {
+  const { colors, spacing, isDark } = useTheme();
+
+  const containerStyle = [
+    styles.flex,
+    { backgroundColor: colors.background },
+    style,
+  ];
+
+  const inner = padded ? { padding: spacing.md } : undefined;
+
+  return (
+    <SafeAreaView style={containerStyle} edges={edges}>
+      <StatusBar
+        barStyle={isDark ? 'light-content' : 'dark-content'}
+        backgroundColor={colors.background}
+      />
+      {scroll ? (
+        <ScrollView
+          style={styles.flex}
+          contentContainerStyle={[inner, contentContainerStyle]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            onRefresh ? (
+              <RefreshControl
+                refreshing={!!refreshing}
+                onRefresh={onRefresh}
+                tintColor={colors.primary}
+                colors={[colors.primary]}
+              />
+            ) : undefined
+          }
+        >
+          {children}
+        </ScrollView>
+      ) : (
+        <View style={[styles.flex, inner, contentContainerStyle]}>
+          {children}
+        </View>
+      )}
+    </SafeAreaView>
+  );
+};
+
+const styles = StyleSheet.create({
+  flex: { flex: 1 },
+});
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\components\inputs\CategoryPicker.tsx ===
+import React from 'react';
+import { FlatList, Modal, TouchableOpacity, View } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useTheme } from '../../theme/ThemeContext';
+import { AppText } from '../common/AppText';
+import { EXPENSE_CATEGORIES, ExpenseCategory } from '../../types/models';
+import { CATEGORY_META } from '../../constants/categories';
+
+interface CategoryPickerProps {
+  visible: boolean;
+  selected?: ExpenseCategory;
+  onSelect: (category: ExpenseCategory) => void;
+  onClose: () => void;
+}
+
+export const CategoryPicker: React.FC<CategoryPickerProps> = ({
+  visible,
+  selected,
+  onSelect,
+  onClose,
+}) => {
+  const { colors, spacing, radius } = useTheme();
+
+  return (
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+      <TouchableOpacity
+        style={{ flex: 1, backgroundColor: colors.overlay }}
+        activeOpacity={1}
+        onPress={onClose}
+      >
+        <View style={{ flex: 1 }} />
+        <TouchableOpacity activeOpacity={1}>
+          <View
+            style={{
+              backgroundColor: colors.surface,
+              borderTopLeftRadius: radius.lg,
+              borderTopRightRadius: radius.lg,
+              padding: spacing.md,
+              maxHeight: '70%',
+            }}
+          >
+            <View
+              style={{
+                alignSelf: 'center',
+                width: 40,
+                height: 4,
+                borderRadius: 2,
+                backgroundColor: colors.border,
+                marginBottom: spacing.md,
+              }}
+            />
+            <AppText variant="h3" style={{ marginBottom: spacing.sm }}>
+              Select Category
+            </AppText>
+            <FlatList
+              data={EXPENSE_CATEGORIES}
+              keyExtractor={item => item}
+              renderItem={({ item }) => {
+                const meta = CATEGORY_META[item];
+                const isSelected = item === selected;
+                return (
+                  <TouchableOpacity
+                    onPress={() => {
+                      onSelect(item);
+                      onClose();
+                    }}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingVertical: spacing.sm,
+                    }}
+                  >
+                    <View
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: radius.sm,
+                        backgroundColor: isSelected
+                          ? colors.primaryLight
+                          : colors.surfaceAlt,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginRight: spacing.sm,
+                      }}
+                    >
+                      <Icon
+                        name={meta.icon}
+                        size={18}
+                        color={isSelected ? colors.primary : colors.textSecondary}
+                      />
+                    </View>
+                    <AppText
+                      variant={isSelected ? 'bodyMedium' : 'body'}
+                      style={{ flex: 1 }}
+                    >
+                      {meta.label}
+                    </AppText>
+                    {isSelected ? (
+                      <Icon name="check" size={20} color={colors.primary} />
+                    ) : null}
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          </View>
+        </TouchableOpacity>
+      </TouchableOpacity>
+    </Modal>
+  );
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\components\inputs\DateInput.tsx ===
+import React, { useState } from 'react';
+import { Platform, TouchableOpacity, View } from 'react-native';
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from '@react-native-community/datetimepicker';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useTheme } from '../../theme/ThemeContext';
+import { AppText } from '../common/AppText';
+import { formatDate } from '../../utils/formatters';
+
+interface DateInputProps {
+  label?: string;
+  value: Date;
+  onChange: (date: Date) => void;
+  maximumDate?: Date;
+}
+
+export const DateInput: React.FC<DateInputProps> = ({
+  label,
+  value,
+  onChange,
+  maximumDate = new Date(),
+}) => {
+  const { colors, spacing, radius } = useTheme();
+  const [show, setShow] = useState(false);
+
+  const handleChange = (event: DateTimePickerEvent, selected?: Date) => {
+    // Android closes the picker itself after a selection/dismiss event.
+    if (Platform.OS === 'android') {
+      setShow(false);
+    }
+    if (event.type === 'set' && selected) {
+      onChange(selected);
+    }
+  };
+
+  return (
+    <View style={{ marginBottom: spacing.md }}>
+      {label ? (
+        <View style={{ marginBottom: spacing.xxs }}>
+          <AppText variant="bodyMedium" color="secondary">
+            {label}
+          </AppText>
+        </View>
+      ) : null}
+      <TouchableOpacity
+        onPress={() => setShow(true)}
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: colors.inputBg,
+          borderRadius: radius.sm,
+          borderWidth: 1.5,
+          borderColor: colors.border,
+          paddingHorizontal: spacing.sm,
+          minHeight: 52,
+        }}
+      >
+        <Icon
+          name="calendar-outline"
+          size={20}
+          color={colors.textMuted}
+          style={{ marginRight: spacing.xs }}
+        />
+        <AppText variant="bodyLarge">{formatDate(value)}</AppText>
+      </TouchableOpacity>
+
+      {show ? (
+        <DateTimePicker
+          value={value}
+          mode="date"
+          display={Platform.OS === 'ios' ? 'inline' : 'default'}
+          onChange={handleChange}
+          maximumDate={maximumDate}
+        />
+      ) : null}
+    </View>
+  );
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\components\inputs\FormTextInput.tsx ===
+import React, { useState } from 'react';
+import {
+  StyleSheet,
+  TextInput,
+  TextInputProps,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import {
+  Control,
+  Controller,
+  FieldValues,
+  Path,
+  RegisterOptions,
+} from 'react-hook-form';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useTheme } from '../../theme/ThemeContext';
+import { AppText } from '../common/AppText';
+
+interface FormTextInputProps<T extends FieldValues>
+  extends Omit<TextInputProps, 'style'> {
+  control: Control<T>;
+  name: Path<T>;
+  label?: string;
+  icon?: string;
+  isPassword?: boolean;
+  helperText?: string;
+  rules?: RegisterOptions<T, Path<T>>;
+}
+
+export function FormTextInput<T extends FieldValues>({
+  control,
+  name,
+  label,
+  icon,
+  isPassword = false,
+  helperText,
+  rules,
+  ...inputProps
+}: FormTextInputProps<T>) {
+  const { colors, spacing, radius, typography } = useTheme();
+  const [secure, setSecure] = useState(isPassword);
+  const [focused, setFocused] = useState(false);
+
+  return (
+    <Controller
+      control={control}
+      name={name}
+      rules={rules}
+      render={({ field: { onChange, onBlur, value }, fieldState: { error } }) => (
+        <View style={{ marginBottom: spacing.md }}>
+          {label ? (
+            <View style={{ marginBottom: spacing.xxs }}>
+              <AppText variant="bodyMedium" color="secondary">
+                {label}
+              </AppText>
+            </View>
+          ) : null}
+
+          <View
+            style={[
+              styles.inputWrap,
+              {
+                backgroundColor: colors.inputBg,
+                borderRadius: radius.sm,
+                borderColor: error
+                  ? colors.danger
+                  : focused
+                  ? colors.primary
+                  : colors.border,
+                paddingHorizontal: spacing.sm,
+              },
+            ]}
+          >
+            {icon ? (
+              <Icon
+                name={icon}
+                size={20}
+                color={colors.textMuted}
+                style={{ marginRight: spacing.xs }}
+              />
+            ) : null}
+            <TextInput
+              style={[
+                styles.input,
+                { color: colors.textPrimary, ...typography.bodyLarge },
+              ]}
+              value={value !== undefined && value !== null ? String(value) : ''}
+              onChangeText={onChange}
+              onBlur={() => {
+                onBlur();
+                setFocused(false);
+              }}
+              onFocus={() => setFocused(true)}
+              placeholderTextColor={colors.textMuted}
+              secureTextEntry={secure}
+              autoCapitalize="none"
+              {...inputProps}
+            />
+            {isPassword ? (
+              <TouchableOpacity onPress={() => setSecure(s => !s)} hitSlop={8}>
+                <Icon
+                  name={secure ? 'eye-off-outline' : 'eye-outline'}
+                  size={20}
+                  color={colors.textMuted}
+                />
+              </TouchableOpacity>
+            ) : null}
+          </View>
+
+          {error ? (
+            <View style={{ marginTop: spacing.xxs }}>
+              <AppText variant="caption" color="danger">
+                {error.message}
+              </AppText>
+            </View>
+          ) : helperText ? (
+            <View style={{ marginTop: spacing.xxs }}>
+              <AppText variant="caption" color="muted">
+                {helperText}
+              </AppText>
+            </View>
+          ) : null}
+        </View>
+      )}
+    />
+  );
+}
+
+const styles = StyleSheet.create({
+  inputWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    minHeight: 52,
+  },
+  input: {
+    flex: 1,
+    paddingVertical: 12,
+  },
+});
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\components\modals\ConfirmModal.tsx ===
+import React from 'react';
+import { Modal, TouchableOpacity, View } from 'react-native';
+import { useTheme } from '../../theme/ThemeContext';
+import { AppText } from '../common/AppText';
+import { PrimaryButton } from '../buttons/PrimaryButton';
+
+interface ConfirmModalProps {
+  visible: boolean;
+  title: string;
+  message: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  destructive?: boolean;
+  loading?: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+export const ConfirmModal: React.FC<ConfirmModalProps> = ({
+  visible,
+  title,
+  message,
+  confirmLabel = 'Confirm',
+  cancelLabel = 'Cancel',
+  destructive = false,
+  loading = false,
+  onConfirm,
+  onCancel,
+}) => {
+  const { colors, spacing, radius } = useTheme();
+
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.overlay,
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: spacing.lg,
+        }}
+      >
+        <View
+          style={{
+            width: '100%',
+            backgroundColor: colors.surface,
+            borderRadius: radius.lg,
+            padding: spacing.lg,
+          }}
+        >
+          <AppText variant="h3" style={{ marginBottom: spacing.xs }}>
+            {title}
+          </AppText>
+          <AppText variant="body" color="secondary" style={{ marginBottom: spacing.lg }}>
+            {message}
+          </AppText>
+
+          <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+            <View style={{ flex: 1 }}>
+              <PrimaryButton
+                label={cancelLabel}
+                variant="ghost"
+                onPress={onCancel}
+                disabled={loading}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <TouchableOpacity
+                disabled={loading}
+                onPress={onConfirm}
+                style={{
+                  minHeight: 48,
+                  borderRadius: radius.md,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: destructive ? colors.danger : colors.primary,
+                  opacity: loading ? 0.7 : 1,
+                }}
+              >
+                <AppText
+                  variant="bodyMedium"
+                  style={{ color: colors.onPrimary }}
+                >
+                  {confirmLabel}
+                </AppText>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\constants\categories.ts ===
+import { ExpenseCategory } from '../types/models';
+
+export interface CategoryMeta {
+  label: string;
+  icon: string; // MaterialCommunityIcons name
+}
+
+export const CATEGORY_META: Record<ExpenseCategory, CategoryMeta> = {
+  FOOD: { label: 'Food & Dining', icon: 'food-fork-drink' },
+  RENT: { label: 'Rent', icon: 'home-city-outline' },
+  TRANSPORT: { label: 'Transport', icon: 'bus' },
+  SHOPPING: { label: 'Shopping', icon: 'shopping-outline' },
+  ENTERTAINMENT: { label: 'Entertainment', icon: 'movie-open-outline' },
+  LIFESTYLE: { label: 'Lifestyle', icon: 'spa-outline' },
+  HEALTH: { label: 'Health', icon: 'heart-pulse' },
+  EDUCATION: { label: 'Education', icon: 'school-outline' },
+  UTILITIES: { label: 'Utilities', icon: 'flash-outline' },
+  TRAVEL: { label: 'Travel', icon: 'airplane' },
+  DATING: { label: 'Dating', icon: 'ring' },
+  OTHER: { label: 'Other', icon: 'shape-outline' },
+};
+
+/** Keyword â†’ category, used by the OCR auto-suggest step. */
+export const CATEGORY_KEYWORDS: Record<ExpenseCategory, string[]> = {
+  FOOD: [
+    'restaurant', 'cafe', 'coffee', 'diner', 'kitchen', 'food', 'pizza',
+    'burger', 'grocery', 'supermarket', 'bakery', 'bar', 'starbucks',
+  ],
+  RENT: ['rent', 'lease', 'landlord', 'apartment'],
+  TRANSPORT: [
+    'uber', 'lyft', 'taxi', 'cab', 'fuel', 'petrol', 'gas station',
+    'parking', 'metro', 'transit', 'toll',
+  ],
+  SHOPPING: [
+    'mall', 'store', 'shop', 'mart', 'amazon', 'clothing', 'apparel',
+    'electronics',
+  ],
+  ENTERTAINMENT: [
+    'cinema', 'movie', 'theatre', 'netflix', 'spotify', 'concert', 'game',
+  ],
+  LIFESTYLE: ['salon', 'spa', 'gym', 'fitness', 'beauty'],
+  HEALTH: [
+    'pharmacy', 'hospital', 'clinic', 'doctor', 'medical', 'drug', 'health',
+  ],
+  EDUCATION: ['school', 'college', 'university', 'course', 'tuition', 'book'],
+  UTILITIES: [
+    'electricity', 'water bill', 'internet', 'utility', 'broadband', 'phone bill',
+  ],
+  TRAVEL: ['airlines', 'hotel', 'flight', 'airbnb', 'booking', 'resort'],
+  DATING: ['dating'],
+  OTHER: [],
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\constants\config.ts ===
+import { Platform } from 'react-native';
+
+/**
+ * Backend base URL.
+ *
+ * - Android emulator can't reach your machine's `localhost` â€” it must use
+ *   the special alias `10.0.2.2`.
+ * - iOS simulator can reach `localhost` directly.
+ * - A physical device needs your machine's LAN IP (e.g. 192.168.x.x).
+ *
+ * Override at build time by editing DEV_API_URL below, or point PROD_API_URL
+ * at your deployed backend before making a release build.
+ */
+const DEV_PORT = 5000;
+
+const DEV_API_URL = Platform.select({
+  android: `http://192.168.1.9:${DEV_PORT}`,
+  ios: `http://localhost:${DEV_PORT}`,
+  default: `http://localhost:${DEV_PORT}`,
+});
+
+const PROD_API_URL = 'https://api.yourfinsight.com';
+
+export const API_BASE_URL = __DEV__ ? DEV_API_URL : PROD_API_URL;
+
+export const API_TIMEOUT_MS = 15000;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\constants\storageKeys.ts ===
+export const StorageKeys = {
+  AUTH_TOKEN: '@finsight/auth_token',
+  AUTH_USER: '@finsight/auth_user',
+  THEME_MODE: '@finsight/theme_mode',
+} as const;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\context\AuthContext.tsx ===
+import React, {
+  createContext,
+  PropsWithChildren,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+} from 'react';
+import { authService } from '../services/api/authService';
+import { getItem, removeItem, setItem } from '../storage/asyncStorage';
+import { StorageKeys } from '../constants/storageKeys';
+import { User } from '../types/models';
+import { appEvents, APP_EVENTS } from '../utils/eventEmitter';
+import { parseApiError } from '../services/api/client';
+
+interface AuthContextValue {
+  user: User | null;
+  token: string | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+
+export const AuthProvider: React.FC<PropsWithChildren> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const logout = useCallback(async () => {
+    setUser(null);
+    setToken(null);
+    await Promise.all([
+      removeItem(StorageKeys.AUTH_TOKEN),
+      removeItem(StorageKeys.AUTH_USER),
+    ]);
+  }, []);
+
+  // Bootstrap session from storage on app start.
+  useEffect(() => {
+    (async () => {
+      const [storedToken, storedUser] = await Promise.all([
+        getItem<string>(StorageKeys.AUTH_TOKEN),
+        getItem<User>(StorageKeys.AUTH_USER),
+      ]);
+      if (storedToken && storedUser) {
+        setToken(storedToken);
+        setUser(storedUser);
+      }
+      setIsLoading(false);
+    })();
+  }, []);
+
+  // Global 401 handler â€” any API call that comes back unauthorized logs the user out.
+  useEffect(() => {
+    const unsubscribe = appEvents.on(APP_EVENTS.UNAUTHORIZED, () => {
+      logout();
+    });
+    return unsubscribe;
+  }, [logout]);
+
+  const login = useCallback(async (email: string, password: string) => {
+    try {
+      const result = await authService.login({ email, password });
+      setToken(result.token);
+      setUser(result.user);
+      await Promise.all([
+        setItem(StorageKeys.AUTH_TOKEN, result.token),
+        setItem(StorageKeys.AUTH_USER, result.user),
+      ]);
+    } catch (error) {
+      throw new Error(parseApiError(error).message);
+    }
+  }, []);
+
+  const register = useCallback(
+    async (name: string, email: string, password: string) => {
+      try {
+        await authService.register({ name, email, password });
+        // Backend register doesn't return a token â€” log in right after.
+        await login(email, password);
+      } catch (error) {
+        throw new Error(parseApiError(error).message);
+      }
+    },
+    [login],
+  );
+
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      user,
+      token,
+      isLoading,
+      isAuthenticated: !!token,
+      login,
+      register,
+      logout,
+    }),
+    [user, token, isLoading, logout, login, register],
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = (): AuthContextValue => {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return ctx;
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\context\ProfileContext.tsx ===
+import React, {
+  createContext,
+  PropsWithChildren,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
+import axios from 'axios';
+import { profileService } from '../services/api/profileService';
+import { UserProfile } from '../types/models';
+import { parseApiError } from '../services/api/client';
+import { useAuth } from './AuthContext';
+
+interface ProfileContextValue {
+  profile: UserProfile | null;
+  loading: boolean;
+  error: string | null;
+  hasNoProfile: boolean;
+  refresh: () => Promise<void>;
+  createProfile: (
+    monthlyIncome: number,
+    savingsGoal: number,
+  ) => Promise<void>;
+  updateProfile: (
+    monthlyIncome: number,
+    savingsGoal: number,
+  ) => Promise<void>;
+}
+
+const ProfileContext = createContext<ProfileContextValue | undefined>(
+  undefined,
+);
+
+export const ProfileProvider: React.FC<PropsWithChildren> = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasNoProfile, setHasNoProfile] = useState(false);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await profileService.getProfile();
+      setProfile(result);
+      setHasNoProfile(false);
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 404) {
+        setProfile(null);
+        setHasNoProfile(true);
+      } else {
+        setError(parseApiError(err).message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      refresh();
+    } else {
+      setProfile(null);
+      setHasNoProfile(false);
+    }
+  }, [isAuthenticated, refresh]);
+
+  const createProfile = useCallback(
+    async (monthlyIncome: number, savingsGoal: number) => {
+      const result = await profileService.createProfile({
+        monthlyIncome,
+        savingsGoal,
+      });
+      setProfile(result);
+      setHasNoProfile(false);
+    },
+    [],
+  );
+
+  const updateProfile = useCallback(
+    async (monthlyIncome: number, savingsGoal: number) => {
+      const result = await profileService.updateProfile({
+        monthlyIncome,
+        savingsGoal,
+      });
+      setProfile(result);
+    },
+    [],
+  );
+
+  const value = useMemo<ProfileContextValue>(
+    () => ({
+      profile,
+      loading,
+      error,
+      hasNoProfile,
+      refresh,
+      createProfile,
+      updateProfile,
+    }),
+    [profile, loading, error, hasNoProfile, refresh, createProfile, updateProfile],
+  );
+
+  return (
+    <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>
+  );
+};
+
+export const useProfileContext = (): ProfileContextValue => {
+  const ctx = useContext(ProfileContext);
+  if (!ctx) {
+    throw new Error('useProfileContext must be used within a ProfileProvider');
+  }
+  return ctx;
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\hooks\useDashboard.ts ===
+import { useCallback, useEffect, useState } from 'react';
+import { dashboardService } from '../services/api/dashboardService';
+import { DashboardData } from '../types/models';
+import { parseApiError } from '../services/api/client';
+
+interface UseDashboardResult {
+  data: DashboardData | null;
+  loading: boolean;
+  refreshing: boolean;
+  error: string | null;
+  refresh: () => Promise<void>;
+}
+
+export function useDashboard(): UseDashboardResult {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchDashboard = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
+    else setLoading(true);
+    setError(null);
+    try {
+      const result = await dashboardService.getDashboard();
+      setData(result);
+    } catch (err) {
+      setError(parseApiError(err).message);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDashboard();
+  }, [fetchDashboard]);
+
+  return {
+    data,
+    loading,
+    refreshing,
+    error,
+    refresh: () => fetchDashboard(true),
+  };
+}
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\hooks\useExpenses.ts ===
+import { useCallback, useEffect, useState } from 'react';
+import { expenseService } from '../services/api/expenseService';
+import { Expense } from '../types/models';
+import { CreateExpenseRequest, UpdateExpenseRequest } from '../types/api';
+import { parseApiError } from '../services/api/client';
+
+interface UseExpensesResult {
+  expenses: Expense[];
+  loading: boolean;
+  refreshing: boolean;
+  error: string | null;
+  refresh: () => Promise<void>;
+  createExpense: (payload: CreateExpenseRequest) => Promise<Expense>;
+  updateExpense: (
+    id: string,
+    payload: UpdateExpenseRequest,
+  ) => Promise<Expense>;
+  deleteExpense: (id: string) => Promise<void>;
+}
+
+export function useExpenses(autoFetch = true): UseExpensesResult {
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [loading, setLoading] = useState(autoFetch);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchExpenses = useCallback(async (isRefresh = false) => {
+    if (isRefresh) setRefreshing(true);
+    else setLoading(true);
+    setError(null);
+    try {
+      const result = await expenseService.getExpenses();
+      // Most recent first.
+      result.sort(
+        (a, b) =>
+          new Date(b.expenseDate).getTime() - new Date(a.expenseDate).getTime(),
+      );
+      setExpenses(result);
+    } catch (err) {
+      setError(parseApiError(err).message);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (autoFetch) {
+      fetchExpenses();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const createExpense = async (payload: CreateExpenseRequest) => {
+    const created = await expenseService.createExpense(payload);
+    setExpenses(prev =>
+      [created, ...prev].sort(
+        (a, b) =>
+          new Date(b.expenseDate).getTime() - new Date(a.expenseDate).getTime(),
+      ),
+    );
+    return created;
+  };
+
+  const updateExpense = async (id: string, payload: UpdateExpenseRequest) => {
+    const updated = await expenseService.updateExpense(id, payload);
+    setExpenses(prev => prev.map(e => (e.id === id ? updated : e)));
+    return updated;
+  };
+
+  const deleteExpense = async (id: string) => {
+    await expenseService.deleteExpense(id);
+    setExpenses(prev => prev.filter(e => e.id !== id));
+  };
+
+  return {
+    expenses,
+    loading,
+    refreshing,
+    error,
+    refresh: () => fetchExpenses(true),
+    createExpense,
+    updateExpense,
+    deleteExpense,
+  };
+}
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\hooks\useProfile.ts ===
+import { useCallback, useEffect, useState } from 'react';
+import axios from 'axios';
+import { profileService } from '../services/api/profileService';
+import { UserProfile } from '../types/models';
+import { parseApiError } from '../services/api/client';
+
+interface UseProfileResult {
+  profile: UserProfile | null;
+  loading: boolean;
+  error: string | null;
+  /** True once we've confirmed via a 404 that the user has no profile yet. */
+  hasNoProfile: boolean;
+  refresh: () => Promise<void>;
+  createProfile: (
+    monthlyIncome: number,
+    savingsGoal: number,
+  ) => Promise<UserProfile>;
+  updateProfile: (
+    monthlyIncome: number,
+    savingsGoal: number,
+  ) => Promise<UserProfile>;
+}
+
+export function useProfile(autoFetch = true): UseProfileResult {
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(autoFetch);
+  const [error, setError] = useState<string | null>(null);
+  const [hasNoProfile, setHasNoProfile] = useState(false);
+
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await profileService.getProfile();
+      setProfile(result);
+      setHasNoProfile(false);
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 404) {
+        setProfile(null);
+        setHasNoProfile(true);
+      } else {
+        setError(parseApiError(err).message);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (autoFetch) {
+      refresh();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const createProfile = async (monthlyIncome: number, savingsGoal: number) => {
+    const result = await profileService.createProfile({
+      monthlyIncome,
+      savingsGoal,
+    });
+    setProfile(result);
+    setHasNoProfile(false);
+    return result;
+  };
+
+  const updateProfile = async (monthlyIncome: number, savingsGoal: number) => {
+    const result = await profileService.updateProfile({
+      monthlyIncome,
+      savingsGoal,
+    });
+    setProfile(result);
+    return result;
+  };
+
+  return {
+    profile,
+    loading,
+    error,
+    hasNoProfile,
+    refresh,
+    createProfile,
+    updateProfile,
+  };
+}
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\navigation\AuthNavigator.tsx ===
+import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { AuthStackParamList } from '../types/navigation';
+import LoginScreen from '../screens/Auth/LoginScreen';
+import RegisterScreen from '../screens/Auth/RegisterScreen';
+
+// Splash is rendered directly by RootNavigator while auth/profile state is
+// resolving, and CreateProfile is gated there too â€” so this stack only ever
+// needs to offer Login <-> Register.
+const Stack = createNativeStackNavigator<AuthStackParamList>();
+
+export const AuthNavigator: React.FC = () => {
+  return (
+    <Stack.Navigator
+      screenOptions={{ headerShown: false }}
+      initialRouteName="Login"
+    >
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Register" component={RegisterScreen} />
+    </Stack.Navigator>
+  );
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\navigation\DashboardNavigator.tsx ===
+import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { DashboardStackParamList } from '../types/navigation';
+import DashboardHomeScreen from '../screens/Dashboard/DashboardHomeScreen';
+import ExpenseDetailsScreen from '../screens/Expense/ExpenseDetailsScreen';
+
+const Stack = createNativeStackNavigator<DashboardStackParamList>();
+
+export const DashboardNavigator: React.FC = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="DashboardHome" component={DashboardHomeScreen} />
+      <Stack.Screen name="ExpenseDetails" component={ExpenseDetailsScreen} />
+    </Stack.Navigator>
+  );
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\navigation\ExpenseNavigator.tsx ===
+import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { ExpenseStackParamList } from '../types/navigation';
+import ExpenseListScreen from '../screens/Expense/ExpenseListScreen';
+import ExpenseDetailsScreen from '../screens/Expense/ExpenseDetailsScreen';
+import AddExpenseScreen from '../screens/Expense/AddExpenseScreen';
+import EditExpenseScreen from '../screens/Expense/EditExpenseScreen';
+import OCRScanScreen from '../screens/OCR/OCRScanScreen';
+
+const Stack = createNativeStackNavigator<ExpenseStackParamList>();
+
+export const ExpenseNavigator: React.FC = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="ExpenseList" component={ExpenseListScreen} />
+      <Stack.Screen name="ExpenseDetails" component={ExpenseDetailsScreen} />
+      <Stack.Screen name="AddExpense" component={AddExpenseScreen} />
+      <Stack.Screen name="EditExpense" component={EditExpenseScreen} />
+      <Stack.Screen name="OCRScan" component={OCRScanScreen} />
+    </Stack.Navigator>
+  );
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\navigation\MainTabNavigator.tsx ===
+import React from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { MainTabParamList } from '../types/navigation';
+import { useTheme } from '../theme/ThemeContext';
+import { DashboardNavigator } from './DashboardNavigator';
+import { ExpenseNavigator } from './ExpenseNavigator';
+import { ProfileNavigator } from './ProfileNavigator';
+import { SettingsNavigator } from './SettingsNavigator';
+
+const Tab = createBottomTabNavigator<MainTabParamList>();
+
+const ICONS: Record<keyof MainTabParamList, string> = {
+  DashboardTab: 'view-dashboard-outline',
+  ExpensesTab: 'receipt-text-outline',
+  ProfileTab: 'account-outline',
+  SettingsTab: 'cog-outline',
+};
+
+export const MainTabNavigator: React.FC = () => {
+  const { colors } = useTheme();
+
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.tabInactive,
+        tabBarStyle: {
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
+          height: 60,
+          paddingBottom: 8,
+          paddingTop: 6,
+        },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+        tabBarIcon: ({ color, size }) => (
+          <Icon
+            name={ICONS[route.name as keyof MainTabParamList]}
+            color={color}
+            size={size}
+          />
+        ),
+      })}
+    >
+      <Tab.Screen
+        name="DashboardTab"
+        component={DashboardNavigator}
+        options={{ title: 'Dashboard' }}
+      />
+      <Tab.Screen
+        name="ExpensesTab"
+        component={ExpenseNavigator}
+        options={{ title: 'Expenses' }}
+      />
+      <Tab.Screen
+        name="ProfileTab"
+        component={ProfileNavigator}
+        options={{ title: 'Profile' }}
+      />
+      <Tab.Screen
+        name="SettingsTab"
+        component={SettingsNavigator}
+        options={{ title: 'Settings' }}
+      />
+    </Tab.Navigator>
+  );
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\navigation\ProfileNavigator.tsx ===
+import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { ProfileStackParamList } from '../types/navigation';
+import ViewProfileScreen from '../screens/Profile/ViewProfileScreen';
+import EditProfileScreen from '../screens/Profile/EditProfileScreen';
+
+const Stack = createNativeStackNavigator<ProfileStackParamList>();
+
+export const ProfileNavigator: React.FC = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="ViewProfile" component={ViewProfileScreen} />
+      <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+    </Stack.Navigator>
+  );
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\navigation\RootNavigator.tsx ===
+import React from 'react';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useAuth } from '../context/AuthContext';
+import { useProfileContext } from '../context/ProfileContext';
+import { useTheme } from '../theme/ThemeContext';
+import { AuthNavigator } from './AuthNavigator';
+import { MainTabNavigator } from './MainTabNavigator';
+import SplashScreen from '../screens/Auth/SplashScreen';
+import CreateProfileScreen from '../screens/Profile/CreateProfileScreen';
+
+const Stack = createNativeStackNavigator();
+
+/**
+ * Three states, in order of precedence:
+ * 1. Auth still bootstrapping from storage -> full-screen loader.
+ * 2. Not authenticated -> Login/Register flow.
+ * 3. Authenticated but profile hasn't been created yet -> CreateProfile gate.
+ * 4. Authenticated + has profile -> Main tab app.
+ */
+const RootNavigator: React.FC = () => {
+  const { colors, isDark } = useTheme();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { hasNoProfile, loading: profileLoading } = useProfileContext();
+
+  const navTheme = {
+    ...(isDark ? DarkTheme : DefaultTheme),
+    colors: {
+      ...(isDark ? DarkTheme.colors : DefaultTheme.colors),
+      background: colors.background,
+      card: colors.surface,
+      text: colors.textPrimary,
+      border: colors.border,
+      primary: colors.primary,
+    },
+  };
+
+  if (authLoading) {
+    return <SplashScreen />;
+  }
+
+  return (
+    <NavigationContainer theme={navTheme}>
+      {!isAuthenticated ? (
+        <AuthNavigator />
+      ) : profileLoading ? (
+        <SplashScreen />
+      ) : hasNoProfile ? (
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="CreateProfile" component={CreateProfileScreen} />
+        </Stack.Navigator>
+      ) : (
+        <MainTabNavigator />
+      )}
+    </NavigationContainer>
+  );
+};
+
+export default RootNavigator;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\navigation\SettingsNavigator.tsx ===
+import React from 'react';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { SettingsStackParamList } from '../types/navigation';
+import SettingsScreen from '../screens/Settings/SettingsScreen';
+
+const Stack = createNativeStackNavigator<SettingsStackParamList>();
+
+export const SettingsNavigator: React.FC = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="SettingsHome" component={SettingsScreen} />
+    </Stack.Navigator>
+  );
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\screens\Auth\LoginScreen.tsx ===
+import React, { useState } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useForm } from 'react-hook-form';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Screen } from '../../components/common/Screen';
+import { AppText } from '../../components/common/AppText';
+import { FormTextInput } from '../../components/inputs/FormTextInput';
+import { PrimaryButton } from '../../components/buttons/PrimaryButton';
+import { useTheme } from '../../theme/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
+import { validators } from '../../utils/validators';
+import { AuthStackParamList } from '../../types/navigation';
+
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
+
+type Nav = NativeStackNavigationProp<AuthStackParamList, 'Login'>;
+
+const LoginScreen: React.FC = () => {
+  const { colors, spacing } = useTheme();
+  const navigation = useNavigation<Nav>();
+  const { login } = useAuth();
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const { control, handleSubmit } = useForm<LoginFormValues>({
+    defaultValues: { email: '', password: '' },
+  });
+
+  const onSubmit = async (values: LoginFormValues) => {
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      await login(values.email.trim(), values.password);
+      // RootNavigator reacts to isAuthenticated automatically.
+    } catch (error: any) {
+      setSubmitError(error?.message ?? 'Unable to log in. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Screen scroll contentContainerStyle={styles.content}>
+      <View style={[styles.iconWrap, { backgroundColor: colors.primaryLight }]}>
+        <Icon name="chart-donut" size={30} color={colors.primary} />
+      </View>
+
+      <View style={{ marginTop: spacing.lg, marginBottom: spacing.xl }}>
+        <AppText variant="h1">Welcome back</AppText>
+        <View style={{ marginTop: spacing.xxs }}>
+          <AppText variant="body" color="secondary">
+            Log in to keep track of your spending.
+          </AppText>
+        </View>
+      </View>
+
+      <FormTextInput
+        control={control}
+        name="email"
+        label="Email"
+        icon="email-outline"
+        placeholder="you@example.com"
+        keyboardType="email-address"
+        rules={validators.email}
+      />
+      <FormTextInput
+        control={control}
+        name="password"
+        label="Password"
+        icon="lock-outline"
+        placeholder="Enter your password"
+        isPassword
+        rules={validators.password}
+      />
+
+      {submitError ? (
+        <View style={{ marginBottom: spacing.md }}>
+          <AppText variant="caption" color="danger">
+            {submitError}
+          </AppText>
+        </View>
+      ) : null}
+
+      <PrimaryButton
+        label="Log In"
+        onPress={handleSubmit(onSubmit)}
+        loading={submitting}
+        style={{ marginTop: spacing.xs }}
+      />
+
+      <View style={[styles.footer, { marginTop: spacing.lg }]}>
+        <AppText variant="body" color="secondary">
+          Don&apos;t have an account?{' '}
+        </AppText>
+        <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+          <AppText variant="bodyMedium" color="brand">
+            Sign Up
+          </AppText>
+        </TouchableOpacity>
+      </View>
+    </Screen>
+  );
+};
+
+const styles = StyleSheet.create({
+  content: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  iconWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+});
+
+export default LoginScreen;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\screens\Auth\RegisterScreen.tsx ===
+import React, { useState } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useForm } from 'react-hook-form';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Screen } from '../../components/common/Screen';
+import { AppText } from '../../components/common/AppText';
+import { FormTextInput } from '../../components/inputs/FormTextInput';
+import { PrimaryButton } from '../../components/buttons/PrimaryButton';
+import { IconButton } from '../../components/buttons/IconButton';
+import { useTheme } from '../../theme/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
+import { validators } from '../../utils/validators';
+import { AuthStackParamList } from '../../types/navigation';
+
+interface RegisterFormValues {
+  name: string;
+  email: string;
+  password: string;
+}
+
+type Nav = NativeStackNavigationProp<AuthStackParamList, 'Register'>;
+
+const RegisterScreen: React.FC = () => {
+  const { spacing } = useTheme();
+  const navigation = useNavigation<Nav>();
+  const { register } = useAuth();
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const { control, handleSubmit } = useForm<RegisterFormValues>({
+    defaultValues: { name: '', email: '', password: '' },
+  });
+
+  const onSubmit = async (values: RegisterFormValues) => {
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      await register(values.name.trim(), values.email.trim(), values.password);
+      // After register+login succeeds, AuthContext flips isAuthenticated,
+      // and RootNavigator sends the user into CreateProfile (no profile yet).
+    } catch (error: any) {
+      setSubmitError(
+        error?.message ?? 'Unable to create your account. Please try again.',
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Screen scroll contentContainerStyle={styles.content}>
+      <IconButton
+        icon="arrow-left"
+        onPress={() => navigation.goBack()}
+        style={{ alignSelf: 'flex-start', marginBottom: spacing.lg }}
+        accessibilityLabel="Go back"
+      />
+
+      <View style={{ marginBottom: spacing.xl }}>
+        <AppText variant="h1">Create your account</AppText>
+        <View style={{ marginTop: spacing.xxs }}>
+          <AppText variant="body" color="secondary">
+            Start tracking your expenses in minutes.
+          </AppText>
+        </View>
+      </View>
+
+      <FormTextInput
+        control={control}
+        name="name"
+        label="Full Name"
+        icon="account-outline"
+        placeholder="Jane Doe"
+        rules={validators.name}
+      />
+      <FormTextInput
+        control={control}
+        name="email"
+        label="Email"
+        icon="email-outline"
+        placeholder="you@example.com"
+        keyboardType="email-address"
+        rules={validators.email}
+      />
+      <FormTextInput
+        control={control}
+        name="password"
+        label="Password"
+        icon="lock-outline"
+        placeholder="At least 6 characters"
+        isPassword
+        rules={validators.password}
+      />
+
+      {submitError ? (
+        <View style={{ marginBottom: spacing.md }}>
+          <AppText variant="caption" color="danger">
+            {submitError}
+          </AppText>
+        </View>
+      ) : null}
+
+      <PrimaryButton
+        label="Sign Up"
+        onPress={handleSubmit(onSubmit)}
+        loading={submitting}
+        style={{ marginTop: spacing.xs }}
+      />
+
+      <View style={[styles.footer, { marginTop: spacing.lg }]}>
+        <AppText variant="body" color="secondary">
+          Already have an account?{' '}
+        </AppText>
+        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+          <AppText variant="bodyMedium" color="brand">
+            Log In
+          </AppText>
+        </TouchableOpacity>
+      </View>
+    </Screen>
+  );
+};
+
+const styles = StyleSheet.create({
+  content: { flexGrow: 1, justifyContent: 'center' },
+  footer: { flexDirection: 'row', justifyContent: 'center' },
+});
+
+export default RegisterScreen;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\screens\Auth\SplashScreen.tsx ===
+import React, { useEffect, useRef } from 'react';
+import { Animated, StyleSheet, View } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useTheme } from '../../theme/ThemeContext';
+import { AppText } from '../../components/common/AppText';
+import { useAuth } from '../../context/AuthContext';
+
+/**
+ * Splash simply shows brand while AuthContext finishes bootstrapping from
+ * AsyncStorage. RootNavigator (not this screen) decides where to go next
+ * based on `isLoading` / `isAuthenticated` â€” this screen just needs to exist
+ * as the initial route so there's no blank flash.
+ */
+const SplashScreen: React.FC = () => {
+  const { colors, spacing } = useTheme();
+  const { isLoading } = useAuth();
+  const fade = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.timing(fade, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, [fade]);
+
+  return (
+    <View style={[styles.container, { backgroundColor: colors.primary }]}>
+      <Animated.View style={[styles.brand, { opacity: fade }]}>
+        <View
+          style={[
+            styles.iconWrap,
+            { backgroundColor: colors.onPrimary, marginBottom: spacing.md },
+          ]}
+        >
+          <Icon name="chart-donut" size={40} color={colors.primary} />
+        </View>
+        <AppText
+          variant="h1"
+          style={{ color: colors.onPrimary }}
+          align="center"
+        >
+          FinSight
+        </AppText>
+        <AppText
+          variant="body"
+          style={{ color: colors.primaryLight }}
+          align="center"
+        >
+          Know where your money goes
+        </AppText>
+      </Animated.View>
+      {isLoading ? null : null}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  brand: {
+    alignItems: 'center',
+  },
+  iconWrap: {
+    width: 84,
+    height: 84,
+    borderRadius: 42,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+
+export default SplashScreen;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\screens\Dashboard\DashboardHomeScreen.tsx ===
+import React from 'react';
+import { TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Screen } from '../../components/common/Screen';
+import { AppText } from '../../components/common/AppText';
+import { LoadingIndicator } from '../../components/common/LoadingIndicator';
+import { ErrorState } from '../../components/common/ErrorState';
+import { EmptyState } from '../../components/common/EmptyState';
+import { Card } from '../../components/cards/Card';
+import { BudgetCard } from '../../components/cards/BudgetCard';
+import { ExpenseListItem } from '../../components/cards/ExpenseListItem';
+import { CategoryPieChart } from '../../components/charts/CategoryPieChart';
+import { useTheme } from '../../theme/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
+import { useProfileContext } from '../../context/ProfileContext';
+import { useDashboard } from '../../hooks/useDashboard';
+import { DashboardStackParamList } from '../../types/navigation';
+
+type Nav = NativeStackNavigationProp<DashboardStackParamList, 'DashboardHome'>;
+
+const DashboardHomeScreen: React.FC = () => {
+  const { spacing } = useTheme();
+  const navigation = useNavigation<Nav>();
+  const { user } = useAuth();
+  const { profile } = useProfileContext();
+  const { data, loading, refreshing, error, refresh } = useDashboard();
+  const currency = profile?.currency ?? 'USD';
+
+  if (loading) {
+    return <LoadingIndicator fullScreen label="Loading your dashboard..." />;
+  }
+
+  if (error) {
+    return (
+      <Screen>
+        <ErrorState message={error} onRetry={refresh} />
+      </Screen>
+    );
+  }
+
+  if (!data) {
+    return (
+      <Screen>
+        <EmptyState
+          icon="chart-donut"
+          title="No dashboard data yet"
+          description="Add your first expense to see insights here."
+        />
+      </Screen>
+    );
+  }
+
+  const overBudget = data.totalSpent > data.spendingBudget;
+
+  return (
+    <Screen scroll refreshing={refreshing} onRefresh={refresh}>
+      <View style={{ marginBottom: spacing.lg }}>
+        <AppText variant="body" color="secondary">
+          Welcome back,
+        </AppText>
+        <AppText variant="h1">{user?.name ?? 'there'}</AppText>
+      </View>
+
+      <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.sm }}>
+        <BudgetCard
+          label="Spending Budget"
+          amount={data.spendingBudget}
+          currency={currency}
+          icon="wallet-outline"
+          tone="primary"
+        />
+        <BudgetCard
+          label="Total Spent"
+          amount={data.totalSpent}
+          currency={currency}
+          icon="trending-down"
+          tone={overBudget ? 'danger' : 'warning'}
+        />
+      </View>
+      <View style={{ flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.lg }}>
+        <BudgetCard
+          label="Remaining"
+          amount={data.remainingBudget}
+          currency={currency}
+          icon="cash-check"
+          tone={data.remainingBudget >= 0 ? 'success' : 'danger'}
+        />
+        <BudgetCard
+          label="Savings Goal"
+          amount={data.savingsGoal}
+          currency={currency}
+          icon="piggy-bank-outline"
+          tone="primary"
+        />
+      </View>
+
+      <Card style={{ marginBottom: spacing.lg }}>
+        <AppText variant="h3" style={{ marginBottom: spacing.sm }}>
+          Spending by Category
+        </AppText>
+        <CategoryPieChart breakdown={data.categoryBreakdown} currency={currency} />
+      </Card>
+
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: spacing.xs,
+        }}
+      >
+        <AppText variant="h3">Recent Expenses</AppText>
+        <TouchableOpacity
+          onPress={() =>
+            navigation.getParent()?.navigate('ExpensesTab', {
+              screen: 'ExpenseList',
+            })
+          }
+        >
+          <AppText variant="bodyMedium" color="brand">
+            See all
+          </AppText>
+        </TouchableOpacity>
+      </View>
+
+      <Card>
+        {data.recentExpenses.length === 0 ? (
+          <AppText variant="body" color="muted" align="center">
+            No expenses yet.
+          </AppText>
+        ) : (
+          data.recentExpenses.map((expense, index) => (
+            <View
+              key={expense.id}
+              style={
+                index !== data.recentExpenses.length - 1
+                  ? {
+                      borderBottomWidth: 1,
+                      borderBottomColor: 'transparent',
+                    }
+                  : undefined
+              }
+            >
+              <ExpenseListItem
+                expense={expense}
+                currency={currency}
+                onPress={() =>
+                  navigation.navigate('ExpenseDetails', {
+                    expenseId: expense.id,
+                  })
+                }
+              />
+            </View>
+          ))
+        )}
+      </Card>
+
+      <View style={{ height: spacing.xl }} />
+    </Screen>
+  );
+};
+
+export default DashboardHomeScreen;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\screens\Expense\AddExpenseScreen.tsx ===
+import React, { useState } from 'react';
+import { Image, TouchableOpacity, View } from 'react-native';
+import { useForm } from 'react-hook-form';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { Screen } from '../../components/common/Screen';
+import { AppText } from '../../components/common/AppText';
+import { FormTextInput } from '../../components/inputs/FormTextInput';
+import { DateInput } from '../../components/inputs/DateInput';
+import { CategoryPicker } from '../../components/inputs/CategoryPicker';
+import { PrimaryButton } from '../../components/buttons/PrimaryButton';
+import { IconButton } from '../../components/buttons/IconButton';
+import { useTheme } from '../../theme/ThemeContext';
+import { useExpenses } from '../../hooks/useExpenses';
+import { validators } from '../../utils/validators';
+import { toISODateOnly } from '../../utils/formatters';
+import { CATEGORY_META } from '../../constants/categories';
+import { ExpenseCategory } from '../../types/models';
+import { ExpenseStackParamList } from '../../types/navigation';
+
+interface AddExpenseFormValues {
+  amount: string;
+  notes: string;
+}
+
+type Nav = NativeStackNavigationProp<ExpenseStackParamList, 'AddExpense'>;
+type RouteProps = RouteProp<ExpenseStackParamList, 'AddExpense'>;
+
+const AddExpenseScreen: React.FC = () => {
+  const { colors, spacing, radius } = useTheme();
+  const navigation = useNavigation<Nav>();
+  const route = useRoute<RouteProps>();
+  const prefill = route.params?.prefill;
+  // NOTE: the backend has no file-upload endpoint â€” expenses only accept a
+  // `receiptUrl` string. We pass through the local device URI so the receipt
+  // is at least viewable within this app; wire this up to real storage
+  // (S3/Cloudinary/etc.) once that endpoint exists on the backend.
+  const [receiptUri, setReceiptUri] = useState<string | undefined>(
+    route.params?.receiptUri,
+  );
+
+  const { createExpense } = useExpenses(false);
+  const [category, setCategory] = useState<ExpenseCategory>(
+    (prefill?.category as ExpenseCategory) ?? 'FOOD',
+  );
+  const [date, setDate] = useState<Date>(
+    prefill?.expenseDate ? new Date(prefill.expenseDate) : new Date(),
+  );
+  const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const { control, handleSubmit } = useForm<AddExpenseFormValues>({
+    defaultValues: {
+      amount: prefill?.amount ? String(prefill.amount) : '',
+      notes: prefill?.notes ?? '',
+    },
+  });
+
+  const categoryMeta = CATEGORY_META[category];
+
+  const pickReceipt = (fromCamera: boolean) => {
+    const handler = fromCamera ? launchCamera : launchImageLibrary;
+    handler({ mediaType: 'photo', quality: 0.7 }, response => {
+      if (response.didCancel || response.errorCode) return;
+      const uri = response.assets?.[0]?.uri;
+      if (uri) setReceiptUri(uri);
+    });
+  };
+
+  const onSubmit = async (values: AddExpenseFormValues) => {
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      await createExpense({
+        amount: Number(values.amount),
+        category,
+        notes: values.notes?.trim() || undefined,
+        expenseDate: toISODateOnly(date),
+        receiptUrl: receiptUri,
+      });
+      navigation.goBack();
+    } catch (error: any) {
+      setSubmitError(error?.message ?? 'Unable to save expense.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Screen scroll>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginBottom: spacing.lg,
+        }}
+      >
+        <IconButton icon="close" onPress={() => navigation.goBack()} />
+        <View style={{ marginLeft: spacing.sm }}>
+          <AppText variant="h2">Add Expense</AppText>
+        </View>
+      </View>
+
+      {prefill ? (
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: colors.successBg,
+            borderRadius: radius.sm,
+            padding: spacing.sm,
+            marginBottom: spacing.md,
+          }}
+        >
+          <Icon name="text-recognition" size={18} color={colors.success} />
+          <View style={{ marginLeft: spacing.xs, flex: 1 }}>
+            <AppText variant="caption" color="success">
+              Details filled from your receipt scan â€” review before saving.
+            </AppText>
+          </View>
+        </View>
+      ) : null}
+
+      <FormTextInput
+        control={control}
+        name="amount"
+        label="Amount"
+        icon="currency-usd"
+        placeholder="0.00"
+        keyboardType="decimal-pad"
+        rules={validators.positiveAmount}
+      />
+
+      <View style={{ marginBottom: spacing.md }}>
+        <AppText variant="bodyMedium" color="secondary" style={{ marginBottom: spacing.xxs }}>
+          Category
+        </AppText>
+        <TouchableOpacity
+          onPress={() => setCategoryPickerVisible(true)}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: colors.inputBg,
+            borderRadius: radius.sm,
+            borderWidth: 1.5,
+            borderColor: colors.border,
+            paddingHorizontal: spacing.sm,
+            minHeight: 52,
+          }}
+        >
+          <Icon
+            name={categoryMeta.icon}
+            size={20}
+            color={colors.primary}
+            style={{ marginRight: spacing.xs }}
+          />
+          <AppText variant="bodyLarge" style={{ flex: 1 }}>
+            {categoryMeta.label}
+          </AppText>
+          <Icon name="chevron-down" size={20} color={colors.textMuted} />
+        </TouchableOpacity>
+      </View>
+
+      <DateInput label="Date" value={date} onChange={setDate} />
+
+      <FormTextInput
+        control={control}
+        name="notes"
+        label="Notes (optional)"
+        icon="note-text-outline"
+        placeholder="What was this for?"
+        multiline
+      />
+
+      <View style={{ marginBottom: spacing.lg }}>
+        <AppText variant="bodyMedium" color="secondary" style={{ marginBottom: spacing.xxs }}>
+          Receipt (optional)
+        </AppText>
+        {receiptUri ? (
+          <View>
+            <Image
+              source={{ uri: receiptUri }}
+              style={{
+                width: '100%',
+                height: 180,
+                borderRadius: radius.sm,
+                marginBottom: spacing.xs,
+              }}
+              resizeMode="cover"
+            />
+            <PrimaryButton
+              label="Remove Receipt"
+              variant="ghost"
+              onPress={() => setReceiptUri(undefined)}
+            />
+          </View>
+        ) : (
+          <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+            <View style={{ flex: 1 }}>
+              <PrimaryButton
+                label="Camera"
+                icon="camera-outline"
+                variant="outline"
+                onPress={() => pickReceipt(true)}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <PrimaryButton
+                label="Gallery"
+                icon="image-outline"
+                variant="outline"
+                onPress={() => pickReceipt(false)}
+              />
+            </View>
+          </View>
+        )}
+      </View>
+
+      {submitError ? (
+        <View style={{ marginBottom: spacing.md }}>
+          <AppText variant="caption" color="danger">
+            {submitError}
+          </AppText>
+        </View>
+      ) : null}
+
+      <PrimaryButton
+        label="Save Expense"
+        onPress={handleSubmit(onSubmit)}
+        loading={submitting}
+      />
+      <View style={{ height: spacing.xl }} />
+
+      <CategoryPicker
+        visible={categoryPickerVisible}
+        selected={category}
+        onSelect={setCategory}
+        onClose={() => setCategoryPickerVisible(false)}
+      />
+    </Screen>
+  );
+};
+
+export default AddExpenseScreen;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\screens\Expense\EditExpenseScreen.tsx ===
+import React, { useCallback, useEffect, useState } from 'react';
+import { Image, TouchableOpacity, View } from 'react-native';
+import { useForm } from 'react-hook-form';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { Screen } from '../../components/common/Screen';
+import { AppText } from '../../components/common/AppText';
+import { FormTextInput } from '../../components/inputs/FormTextInput';
+import { DateInput } from '../../components/inputs/DateInput';
+import { CategoryPicker } from '../../components/inputs/CategoryPicker';
+import { PrimaryButton } from '../../components/buttons/PrimaryButton';
+import { IconButton } from '../../components/buttons/IconButton';
+import { LoadingIndicator } from '../../components/common/LoadingIndicator';
+import { ErrorState } from '../../components/common/ErrorState';
+import { useTheme } from '../../theme/ThemeContext';
+import { expenseService } from '../../services/api/expenseService';
+import { parseApiError } from '../../services/api/client';
+import { validators } from '../../utils/validators';
+import { toISODateOnly } from '../../utils/formatters';
+import { CATEGORY_META } from '../../constants/categories';
+import { ExpenseCategory } from '../../types/models';
+import { ExpenseStackParamList } from '../../types/navigation';
+
+interface EditExpenseFormValues {
+  amount: string;
+  notes: string;
+}
+
+type Nav = NativeStackNavigationProp<ExpenseStackParamList, 'EditExpense'>;
+type RouteProps = RouteProp<ExpenseStackParamList, 'EditExpense'>;
+
+const EditExpenseScreen: React.FC = () => {
+  const { colors, spacing, radius } = useTheme();
+  const navigation = useNavigation<Nav>();
+  const route = useRoute<RouteProps>();
+  const { expenseId } = route.params;
+
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [category, setCategory] = useState<ExpenseCategory>('FOOD');
+  const [date, setDate] = useState<Date>(new Date());
+  const [receiptUri, setReceiptUri] = useState<string | undefined>(undefined);
+  const [categoryPickerVisible, setCategoryPickerVisible] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const { control, handleSubmit, reset } = useForm<EditExpenseFormValues>({
+    defaultValues: { amount: '', notes: '' },
+  });
+
+  const loadExpense = useCallback(async () => {
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const expense = await expenseService.getExpenseById(expenseId);
+      setCategory(expense.category);
+      setDate(new Date(expense.expenseDate));
+      setReceiptUri(expense.receiptUrl ?? undefined);
+      reset({
+        amount: String(expense.amount),
+        notes: expense.notes ?? '',
+      });
+    } catch (err) {
+      setLoadError(parseApiError(err).message);
+    } finally {
+      setLoading(false);
+    }
+  }, [expenseId, reset]);
+
+  useEffect(() => {
+    loadExpense();
+  }, [loadExpense]);
+
+  const categoryMeta = CATEGORY_META[category];
+
+  const pickReceipt = (fromCamera: boolean) => {
+    const handler = fromCamera ? launchCamera : launchImageLibrary;
+    handler({ mediaType: 'photo', quality: 0.7 }, response => {
+      if (response.didCancel || response.errorCode) return;
+      const uri = response.assets?.[0]?.uri;
+      if (uri) setReceiptUri(uri);
+    });
+  };
+
+  const onSubmit = async (values: EditExpenseFormValues) => {
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      await expenseService.updateExpense(expenseId, {
+        amount: Number(values.amount),
+        category,
+        notes: values.notes?.trim() || undefined,
+        expenseDate: toISODateOnly(date),
+        receiptUrl: receiptUri,
+      });
+      navigation.goBack();
+    } catch (error: any) {
+      setSubmitError(error?.message ?? 'Unable to update expense.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return <LoadingIndicator fullScreen />;
+  }
+
+  if (loadError) {
+    return (
+      <Screen>
+        <ErrorState message={loadError} onRetry={loadExpense} />
+      </Screen>
+    );
+  }
+
+  return (
+    <Screen scroll>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginBottom: spacing.lg,
+        }}
+      >
+        <IconButton icon="close" onPress={() => navigation.goBack()} />
+        <View style={{ marginLeft: spacing.sm }}>
+          <AppText variant="h2">Edit Expense</AppText>
+        </View>
+      </View>
+
+      <FormTextInput
+        control={control}
+        name="amount"
+        label="Amount"
+        icon="currency-usd"
+        placeholder="0.00"
+        keyboardType="decimal-pad"
+        rules={validators.positiveAmount}
+      />
+
+      <View style={{ marginBottom: spacing.md }}>
+        <AppText variant="bodyMedium" color="secondary" style={{ marginBottom: spacing.xxs }}>
+          Category
+        </AppText>
+        <TouchableOpacity
+          onPress={() => setCategoryPickerVisible(true)}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: colors.inputBg,
+            borderRadius: radius.sm,
+            borderWidth: 1.5,
+            borderColor: colors.border,
+            paddingHorizontal: spacing.sm,
+            minHeight: 52,
+          }}
+        >
+          <Icon
+            name={categoryMeta.icon}
+            size={20}
+            color={colors.primary}
+            style={{ marginRight: spacing.xs }}
+          />
+          <AppText variant="bodyLarge" style={{ flex: 1 }}>
+            {categoryMeta.label}
+          </AppText>
+          <Icon name="chevron-down" size={20} color={colors.textMuted} />
+        </TouchableOpacity>
+      </View>
+
+      <DateInput label="Date" value={date} onChange={setDate} />
+
+      <FormTextInput
+        control={control}
+        name="notes"
+        label="Notes (optional)"
+        icon="note-text-outline"
+        placeholder="What was this for?"
+        multiline
+      />
+
+      <View style={{ marginBottom: spacing.lg }}>
+        <AppText variant="bodyMedium" color="secondary" style={{ marginBottom: spacing.xxs }}>
+          Receipt (optional)
+        </AppText>
+        {receiptUri ? (
+          <View>
+            <Image
+              source={{ uri: receiptUri }}
+              style={{
+                width: '100%',
+                height: 180,
+                borderRadius: radius.sm,
+                marginBottom: spacing.xs,
+              }}
+              resizeMode="cover"
+            />
+            <PrimaryButton
+              label="Remove Receipt"
+              variant="ghost"
+              onPress={() => setReceiptUri(undefined)}
+            />
+          </View>
+        ) : (
+          <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+            <View style={{ flex: 1 }}>
+              <PrimaryButton
+                label="Camera"
+                icon="camera-outline"
+                variant="outline"
+                onPress={() => pickReceipt(true)}
+              />
+            </View>
+            <View style={{ flex: 1 }}>
+              <PrimaryButton
+                label="Gallery"
+                icon="image-outline"
+                variant="outline"
+                onPress={() => pickReceipt(false)}
+              />
+            </View>
+          </View>
+        )}
+      </View>
+
+      {submitError ? (
+        <View style={{ marginBottom: spacing.md }}>
+          <AppText variant="caption" color="danger">
+            {submitError}
+          </AppText>
+        </View>
+      ) : null}
+
+      <PrimaryButton
+        label="Save Changes"
+        onPress={handleSubmit(onSubmit)}
+        loading={submitting}
+      />
+      <View style={{ height: spacing.xl }} />
+
+      <CategoryPicker
+        visible={categoryPickerVisible}
+        selected={category}
+        onSelect={setCategory}
+        onClose={() => setCategoryPickerVisible(false)}
+      />
+    </Screen>
+  );
+};
+
+export default EditExpenseScreen;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\screens\Expense\ExpenseDetailsScreen.tsx ===
+import React, { useCallback, useState } from 'react';
+import { Image, View } from 'react-native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+  RouteProp,
+} from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Screen } from '../../components/common/Screen';
+import { AppText } from '../../components/common/AppText';
+import { LoadingIndicator } from '../../components/common/LoadingIndicator';
+import { ErrorState } from '../../components/common/ErrorState';
+import { Card } from '../../components/cards/Card';
+import { IconButton } from '../../components/buttons/IconButton';
+import { ConfirmModal } from '../../components/modals/ConfirmModal';
+import { useTheme } from '../../theme/ThemeContext';
+import { useProfileContext } from '../../context/ProfileContext';
+import { expenseService } from '../../services/api/expenseService';
+import { parseApiError } from '../../services/api/client';
+import { Expense } from '../../types/models';
+import { ExpenseStackParamList } from '../../types/navigation';
+import { CATEGORY_META } from '../../constants/categories';
+import { formatCurrency, formatDate } from '../../utils/formatters';
+
+type Nav = NativeStackNavigationProp<ExpenseStackParamList, 'ExpenseDetails'>;
+type RouteProps = RouteProp<ExpenseStackParamList, 'ExpenseDetails'>;
+
+const ExpenseDetailsScreen: React.FC = () => {
+  const { colors, spacing, radius } = useTheme();
+  const navigation = useNavigation<Nav>();
+  const route = useRoute<RouteProps>();
+  const { expenseId } = route.params;
+  const { profile } = useProfileContext();
+  const currency = profile?.currency ?? 'USD';
+
+  const [expense, setExpense] = useState<Expense | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const loadExpense = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await expenseService.getExpenseById(expenseId);
+      setExpense(result);
+    } catch (err) {
+      setError(parseApiError(err).message);
+    } finally {
+      setLoading(false);
+    }
+  }, [expenseId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadExpense();
+    }, [loadExpense]),
+  );
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await expenseService.deleteExpense(expenseId);
+      setConfirmDelete(false);
+      navigation.goBack();
+    } catch (err) {
+      setError(parseApiError(err).message);
+      setConfirmDelete(false);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  if (loading) {
+    return <LoadingIndicator fullScreen />;
+  }
+
+  if (error || !expense) {
+    return (
+      <Screen>
+        <ErrorState message={error ?? 'Expense not found.'} onRetry={loadExpense} />
+      </Screen>
+    );
+  }
+
+  const meta = CATEGORY_META[expense.category] ?? {
+    label: expense.category,
+    icon: 'shape-outline',
+  };
+
+  return (
+    <>
+      <Screen scroll>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: spacing.lg,
+          }}
+        >
+          <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
+          <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+            <IconButton
+              icon="pencil-outline"
+              onPress={() =>
+                navigation.navigate('EditExpense', { expenseId: expense.id })
+              }
+            />
+            <IconButton
+              icon="trash-can-outline"
+              color={colors.danger}
+              backgroundColor={colors.dangerBg}
+              onPress={() => setConfirmDelete(true)}
+            />
+          </View>
+        </View>
+
+        <View style={{ alignItems: 'center', marginBottom: spacing.lg }}>
+          <View
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: radius.lg,
+              backgroundColor: colors.primaryLight,
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: spacing.sm,
+            }}
+          >
+            <Icon name={meta.icon} size={30} color={colors.primary} />
+          </View>
+          <AppText variant="display">
+            {formatCurrency(expense.amount, currency)}
+          </AppText>
+          <AppText variant="body" color="secondary">
+            {meta.label}
+          </AppText>
+        </View>
+
+        <Card style={{ marginBottom: spacing.md }}>
+          <DetailRow label="Date" value={formatDate(expense.expenseDate)} />
+          <DetailRow label="Category" value={meta.label} isLast={!expense.notes} />
+          {expense.notes ? (
+            <DetailRow label="Notes" value={expense.notes} isLast />
+          ) : null}
+        </Card>
+
+        {expense.receiptUrl ? (
+          <Card>
+            <AppText variant="bodyMedium" style={{ marginBottom: spacing.sm }}>
+              Receipt
+            </AppText>
+            <Image
+              source={{ uri: expense.receiptUrl }}
+              style={{
+                width: '100%',
+                height: 220,
+                borderRadius: radius.sm,
+                backgroundColor: colors.surfaceAlt,
+              }}
+              resizeMode="cover"
+            />
+          </Card>
+        ) : null}
+
+        <View style={{ height: spacing.xl }} />
+      </Screen>
+
+      <ConfirmModal
+        visible={confirmDelete}
+        title="Delete expense?"
+        message="This action can't be undone."
+        confirmLabel="Delete"
+        destructive
+        loading={deleting}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(false)}
+      />
+    </>
+  );
+};
+
+const DetailRow: React.FC<{ label: string; value: string; isLast?: boolean }> = ({
+  label,
+  value,
+  isLast,
+}) => {
+  const { colors, spacing } = useTheme();
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingVertical: spacing.xs,
+        borderBottomWidth: isLast ? 0 : 1,
+        borderBottomColor: colors.divider,
+      }}
+    >
+      <AppText variant="body" color="muted">
+        {label}
+      </AppText>
+      <AppText variant="bodyMedium">{value}</AppText>
+    </View>
+  );
+};
+
+export default ExpenseDetailsScreen;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\screens\Expense\ExpenseListScreen.tsx ===
+import React, { useState } from 'react';
+import { FlatList, RefreshControl, View } from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Screen } from '../../components/common/Screen';
+import { AppText } from '../../components/common/AppText';
+import { LoadingIndicator } from '../../components/common/LoadingIndicator';
+import { ErrorState } from '../../components/common/ErrorState';
+import { EmptyState } from '../../components/common/EmptyState';
+import { ExpenseListItem } from '../../components/cards/ExpenseListItem';
+import { FAB } from '../../components/buttons/FAB';
+import { IconButton } from '../../components/buttons/IconButton';
+import { useTheme } from '../../theme/ThemeContext';
+import { useExpenses } from '../../hooks/useExpenses';
+import { useProfileContext } from '../../context/ProfileContext';
+import { ExpenseStackParamList } from '../../types/navigation';
+import { formatCurrency } from '../../utils/formatters';
+
+type Nav = NativeStackNavigationProp<ExpenseStackParamList, 'ExpenseList'>;
+
+const ExpenseListScreen: React.FC = () => {
+  const { colors, spacing } = useTheme();
+  const navigation = useNavigation<Nav>();
+  const { profile } = useProfileContext();
+  const { expenses, loading, refreshing, error, refresh } = useExpenses();
+  const currency = profile?.currency ?? 'USD';
+  const [hasFocusedOnce, setHasFocusedOnce] = useState(false);
+
+  // Refresh the list whenever this screen regains focus (e.g. after adding
+  // or editing an expense) so it never shows stale data.
+  useFocusEffect(
+    React.useCallback(() => {
+      if (hasFocusedOnce) {
+        refresh();
+      } else {
+        setHasFocusedOnce(true);
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [hasFocusedOnce]),
+  );
+
+  const total = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+
+  if (loading) {
+    return <LoadingIndicator fullScreen label="Loading expenses..." />;
+  }
+
+  return (
+    <Screen padded={false} style={{ flex: 1 }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          padding: spacing.md,
+          paddingBottom: spacing.xs,
+        }}
+      >
+        <View>
+          <AppText variant="h1">Expenses</AppText>
+          {expenses.length > 0 ? (
+            <AppText variant="body" color="secondary">
+              {expenses.length} expense{expenses.length !== 1 ? 's' : ''} Â·{' '}
+              {formatCurrency(total, currency)} total
+            </AppText>
+          ) : null}
+        </View>
+        <IconButton
+          icon="text-recognition"
+          accessibilityLabel="Scan receipt"
+          onPress={() => navigation.navigate('OCRScan')}
+        />
+      </View>
+
+      {error ? (
+        <ErrorState message={error} onRetry={refresh} />
+      ) : expenses.length === 0 ? (
+        <EmptyState
+          icon="receipt-text-outline"
+          title="No expenses yet"
+          description="Add your first expense to start tracking your spending."
+          actionLabel="Add Expense"
+          onAction={() => navigation.navigate('AddExpense', undefined)}
+        />
+      ) : (
+        <FlatList
+          data={expenses}
+          keyExtractor={item => item.id}
+          contentContainerStyle={{
+            paddingHorizontal: spacing.md,
+            paddingBottom: 100,
+          }}
+          renderItem={({ item }) => (
+            <ExpenseListItem
+              expense={item}
+              currency={currency}
+              onPress={() =>
+                navigation.navigate('ExpenseDetails', { expenseId: item.id })
+              }
+            />
+          )}
+          ItemSeparatorComponent={() => (
+            <View style={{ height: 1, backgroundColor: colors.divider }} />
+          )}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={refresh}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
+            />
+          }
+        />
+      )}
+
+      <FAB onPress={() => navigation.navigate('AddExpense', undefined)} />
+    </Screen>
+  );
+};
+
+export default ExpenseListScreen;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\screens\OCR\OCRScanScreen.tsx ===
+import React, { useState } from 'react';
+import { Image, ScrollView, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import TextRecognition from '@react-native-ml-kit/text-recognition';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Screen } from '../../components/common/Screen';
+import { AppText } from '../../components/common/AppText';
+import { PrimaryButton } from '../../components/buttons/PrimaryButton';
+import { IconButton } from '../../components/buttons/IconButton';
+import { Card } from '../../components/cards/Card';
+import { LoadingIndicator } from '../../components/common/LoadingIndicator';
+import { useTheme } from '../../theme/ThemeContext';
+import { ExpenseStackParamList } from '../../types/navigation';
+import {
+  parseAmountFromReceipt,
+  parseDateFromReceipt,
+  suggestCategoryFromReceipt,
+} from '../../utils/ocrParser';
+import { CATEGORY_META } from '../../constants/categories';
+import { toISODateOnly } from '../../utils/formatters';
+
+type Nav = NativeStackNavigationProp<ExpenseStackParamList, 'OCRScan'>;
+
+type Stage = 'pick' | 'scanning' | 'reviewing' | 'error';
+
+const OCRScanScreen: React.FC = () => {
+  const { colors, spacing, radius } = useTheme();
+  const navigation = useNavigation<Nav>();
+
+  const [stage, setStage] = useState<Stage>('pick');
+  const [imageUri, setImageUri] = useState<string | null>(null);
+  const [extractedText, setExtractedText] = useState('');
+  const [amount, setAmount] = useState<number | null>(null);
+  const [date, setDate] = useState<Date | null>(null);
+  const [category, setCategory] = useState<ReturnType<typeof suggestCategoryFromReceipt>>('OTHER');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const runOCR = async (uri: string) => {
+    setImageUri(uri);
+    setStage('scanning');
+    try {
+      const result = await TextRecognition.recognize(uri);
+      const text = result.text ?? '';
+      setExtractedText(text);
+      setAmount(parseAmountFromReceipt(text));
+      setDate(parseDateFromReceipt(text));
+      setCategory(suggestCategoryFromReceipt(text));
+      setStage('reviewing');
+    } catch {
+      setErrorMessage(
+        'Could not read text from this image. Try a clearer, well-lit photo.',
+      );
+      setStage('error');
+    }
+  };
+
+  const pickImage = (fromCamera: boolean) => {
+    const handler = fromCamera ? launchCamera : launchImageLibrary;
+    handler({ mediaType: 'photo', quality: 0.9 }, response => {
+      if (response.didCancel || response.errorCode) return;
+      const uri = response.assets?.[0]?.uri;
+      if (uri) runOCR(uri);
+    });
+  };
+
+  const useDetails = () => {
+    navigation.navigate('AddExpense', {
+      receiptUri: imageUri ?? undefined,
+      prefill: {
+        amount: amount ?? undefined,
+        category,
+        expenseDate: date ? toISODateOnly(date) : undefined,
+      },
+    });
+  };
+
+  return (
+    <Screen scroll>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginBottom: spacing.lg,
+        }}
+      >
+        <IconButton icon="close" onPress={() => navigation.goBack()} />
+        <View style={{ marginLeft: spacing.sm }}>
+          <AppText variant="h2">Scan Receipt</AppText>
+        </View>
+      </View>
+
+      {stage === 'pick' && (
+        <View>
+          <View
+            style={{
+              alignItems: 'center',
+              paddingVertical: spacing.xl,
+              marginBottom: spacing.lg,
+            }}
+          >
+            <View
+              style={{
+                width: 84,
+                height: 84,
+                borderRadius: 42,
+                backgroundColor: colors.primaryLight,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: spacing.md,
+              }}
+            >
+              <Icon name="receipt-text-outline" size={38} color={colors.primary} />
+            </View>
+            <AppText variant="h3" align="center">
+              Snap or upload a receipt
+            </AppText>
+            <View style={{ marginTop: spacing.xxs, paddingHorizontal: spacing.lg }}>
+              <AppText variant="body" color="secondary" align="center">
+                We'll pull out the amount, date, and category so you can
+                review and save in seconds.
+              </AppText>
+            </View>
+          </View>
+
+          <PrimaryButton
+            label="Take Photo"
+            icon="camera-outline"
+            onPress={() => pickImage(true)}
+            style={{ marginBottom: spacing.sm }}
+          />
+          <PrimaryButton
+            label="Choose from Gallery"
+            icon="image-outline"
+            variant="outline"
+            onPress={() => pickImage(false)}
+          />
+        </View>
+      )}
+
+      {stage === 'scanning' && (
+        <View>
+          {imageUri ? (
+            <Image
+              source={{ uri: imageUri }}
+              style={{
+                width: '100%',
+                height: 240,
+                borderRadius: radius.md,
+                marginBottom: spacing.lg,
+              }}
+              resizeMode="cover"
+            />
+          ) : null}
+          <LoadingIndicator label="Reading receipt..." />
+        </View>
+      )}
+
+      {stage === 'error' && (
+        <View>
+          {imageUri ? (
+            <Image
+              source={{ uri: imageUri }}
+              style={{
+                width: '100%',
+                height: 200,
+                borderRadius: radius.md,
+                marginBottom: spacing.md,
+              }}
+              resizeMode="cover"
+            />
+          ) : null}
+          <Card style={{ marginBottom: spacing.md, backgroundColor: colors.dangerBg }}>
+            <AppText variant="body" color="danger">
+              {errorMessage}
+            </AppText>
+          </Card>
+          <PrimaryButton label="Try Again" onPress={() => setStage('pick')} />
+        </View>
+      )}
+
+      {stage === 'reviewing' && (
+        <View>
+          {imageUri ? (
+            <Image
+              source={{ uri: imageUri }}
+              style={{
+                width: '100%',
+                height: 200,
+                borderRadius: radius.md,
+                marginBottom: spacing.md,
+              }}
+              resizeMode="cover"
+            />
+          ) : null}
+
+          <Card style={{ marginBottom: spacing.md }}>
+            <AppText variant="bodyMedium" color="secondary" style={{ marginBottom: spacing.sm }}>
+              Detected Details
+            </AppText>
+            <ReviewRow
+              icon="currency-usd"
+              label="Amount"
+              value={amount !== null ? amount.toFixed(2) : 'Not detected'}
+            />
+            <ReviewRow
+              icon="calendar-outline"
+              label="Date"
+              value={date ? date.toDateString() : 'Not detected'}
+            />
+            <ReviewRow
+              icon={CATEGORY_META[category].icon}
+              label="Category"
+              value={CATEGORY_META[category].label}
+              isLast
+            />
+          </Card>
+
+          <View
+            style={{
+              backgroundColor: colors.warningBg,
+              borderRadius: radius.sm,
+              padding: spacing.sm,
+              marginBottom: spacing.md,
+            }}
+          >
+            <AppText variant="caption" color="warning">
+              Double-check these details on the next screen â€” OCR isn't
+              perfect, especially with faded or angled receipts.
+            </AppText>
+          </View>
+
+          <PrimaryButton
+            label="Continue to Add Expense"
+            onPress={useDetails}
+            style={{ marginBottom: spacing.sm }}
+          />
+          <PrimaryButton
+            label="Retake Photo"
+            variant="ghost"
+            onPress={() => setStage('pick')}
+          />
+
+          {extractedText ? (
+            <View style={{ marginTop: spacing.lg }}>
+              <AppText variant="caption" color="muted" style={{ marginBottom: spacing.xxs }}>
+                Raw extracted text
+              </AppText>
+              <Card>
+                <ScrollView style={{ maxHeight: 140 }}>
+                  <AppText variant="caption" color="muted">
+                    {extractedText}
+                  </AppText>
+                </ScrollView>
+              </Card>
+            </View>
+          ) : null}
+        </View>
+      )}
+    </Screen>
+  );
+};
+
+const ReviewRow: React.FC<{
+  icon: string;
+  label: string;
+  value: string;
+  isLast?: boolean;
+}> = ({ icon, label, value, isLast }) => {
+  const { colors, spacing, radius } = useTheme();
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: spacing.sm,
+        borderBottomWidth: isLast ? 0 : 1,
+        borderBottomColor: colors.divider,
+      }}
+    >
+      <View
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: radius.sm,
+          backgroundColor: colors.surfaceAlt,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginRight: spacing.sm,
+        }}
+      >
+        <Icon name={icon} size={18} color={colors.primary} />
+      </View>
+      <AppText variant="body" color="secondary" style={{ flex: 1 }}>
+        {label}
+      </AppText>
+      <AppText variant="bodyMedium">{value}</AppText>
+    </View>
+  );
+};
+
+export default OCRScanScreen;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\screens\Profile\CreateProfileScreen.tsx ===
+import React, { useState } from 'react';
+import { View } from 'react-native';
+import { useForm } from 'react-hook-form';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Screen } from '../../components/common/Screen';
+import { AppText } from '../../components/common/AppText';
+import { FormTextInput } from '../../components/inputs/FormTextInput';
+import { PrimaryButton } from '../../components/buttons/PrimaryButton';
+import { useTheme } from '../../theme/ThemeContext';
+import { useProfileContext } from '../../context/ProfileContext';
+import { validators } from '../../utils/validators';
+
+interface ProfileFormValues {
+  monthlyIncome: string;
+  savingsGoal: string;
+}
+
+const CreateProfileScreen: React.FC = () => {
+  const { colors, spacing } = useTheme();
+  const { createProfile } = useProfileContext();
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const { control, handleSubmit } = useForm<ProfileFormValues>({
+    defaultValues: { monthlyIncome: '', savingsGoal: '' },
+  });
+
+  const onSubmit = async (values: ProfileFormValues) => {
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      await createProfile(Number(values.monthlyIncome), Number(values.savingsGoal));
+      // RootNavigator watches profile state upstream and will move to Main
+      // once this screen's parent re-checks â€” see MainGate below.
+    } catch (error: any) {
+      setSubmitError(
+        error?.message ?? 'Unable to save your profile. Please try again.',
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Screen scroll contentContainerStyle={{ flexGrow: 1, justifyContent: 'center' }}>
+      <View style={{ alignItems: 'center', marginBottom: spacing.xl }}>
+        <View
+          style={{
+            width: 64,
+            height: 64,
+            borderRadius: 20,
+            backgroundColor: colors.primaryLight,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: spacing.md,
+          }}
+        >
+          <Icon name="wallet-outline" size={30} color={colors.primary} />
+        </View>
+        <AppText variant="h1" align="center">
+          Set up your budget
+        </AppText>
+        <View style={{ marginTop: spacing.xxs, paddingHorizontal: spacing.md }}>
+          <AppText variant="body" color="secondary" align="center">
+            Tell us your monthly income and savings goal â€” FinSight uses this
+            to track your spending budget.
+          </AppText>
+        </View>
+      </View>
+
+      <FormTextInput
+        control={control}
+        name="monthlyIncome"
+        label="Monthly Income"
+        icon="cash"
+        placeholder="e.g. 4000"
+        keyboardType="decimal-pad"
+        rules={validators.positiveAmount}
+      />
+      <FormTextInput
+        control={control}
+        name="savingsGoal"
+        label="Monthly Savings Goal"
+        icon="piggy-bank-outline"
+        placeholder="e.g. 500"
+        keyboardType="decimal-pad"
+        rules={validators.positiveAmount}
+        helperText="Spending budget = income âˆ’ savings goal"
+      />
+
+      {submitError ? (
+        <View style={{ marginBottom: spacing.md }}>
+          <AppText variant="caption" color="danger">
+            {submitError}
+          </AppText>
+        </View>
+      ) : null}
+
+      <PrimaryButton
+        label="Continue"
+        onPress={handleSubmit(onSubmit)}
+        loading={submitting}
+      />
+    </Screen>
+  );
+};
+
+export default CreateProfileScreen;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\screens\Profile\EditProfileScreen.tsx ===
+import React, { useState } from 'react';
+import { View } from 'react-native';
+import { useForm } from 'react-hook-form';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Screen } from '../../components/common/Screen';
+import { AppText } from '../../components/common/AppText';
+import { FormTextInput } from '../../components/inputs/FormTextInput';
+import { PrimaryButton } from '../../components/buttons/PrimaryButton';
+import { IconButton } from '../../components/buttons/IconButton';
+import { useTheme } from '../../theme/ThemeContext';
+import { useProfileContext } from '../../context/ProfileContext';
+import { validators } from '../../utils/validators';
+import { ProfileStackParamList } from '../../types/navigation';
+
+interface EditProfileFormValues {
+  monthlyIncome: string;
+  savingsGoal: string;
+}
+
+type Nav = NativeStackNavigationProp<ProfileStackParamList, 'EditProfile'>;
+
+const EditProfileScreen: React.FC = () => {
+  const { spacing } = useTheme();
+  const navigation = useNavigation<Nav>();
+  const { profile, updateProfile } = useProfileContext();
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const { control, handleSubmit } = useForm<EditProfileFormValues>({
+    defaultValues: {
+      monthlyIncome: profile ? String(profile.monthlyIncome) : '',
+      savingsGoal: profile ? String(profile.savingsGoal) : '',
+    },
+  });
+
+  const onSubmit = async (values: EditProfileFormValues) => {
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      await updateProfile(Number(values.monthlyIncome), Number(values.savingsGoal));
+      navigation.goBack();
+    } catch (error: any) {
+      setSubmitError(error?.message ?? 'Unable to update profile.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Screen scroll>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginBottom: spacing.lg,
+        }}
+      >
+        <IconButton icon="arrow-left" onPress={() => navigation.goBack()} />
+        <View style={{ marginLeft: spacing.sm }}>
+          <AppText variant="h2">Edit Profile</AppText>
+        </View>
+      </View>
+
+      <FormTextInput
+        control={control}
+        name="monthlyIncome"
+        label="Monthly Income"
+        icon="cash"
+        placeholder="e.g. 4000"
+        keyboardType="decimal-pad"
+        rules={validators.positiveAmount}
+      />
+      <FormTextInput
+        control={control}
+        name="savingsGoal"
+        label="Monthly Savings Goal"
+        icon="piggy-bank-outline"
+        placeholder="e.g. 500"
+        keyboardType="decimal-pad"
+        rules={validators.positiveAmount}
+      />
+
+      {submitError ? (
+        <View style={{ marginBottom: spacing.md }}>
+          <AppText variant="caption" color="danger">
+            {submitError}
+          </AppText>
+        </View>
+      ) : null}
+
+      <PrimaryButton
+        label="Save Changes"
+        onPress={handleSubmit(onSubmit)}
+        loading={submitting}
+      />
+    </Screen>
+  );
+};
+
+export default EditProfileScreen;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\screens\Profile\ViewProfileScreen.tsx ===
+import React from 'react';
+import { View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Screen } from '../../components/common/Screen';
+import { AppText } from '../../components/common/AppText';
+import { Card } from '../../components/cards/Card';
+import { PrimaryButton } from '../../components/buttons/PrimaryButton';
+import { LoadingIndicator } from '../../components/common/LoadingIndicator';
+import { useTheme } from '../../theme/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
+import { useProfileContext } from '../../context/ProfileContext';
+import { ProfileStackParamList } from '../../types/navigation';
+import { formatCurrency } from '../../utils/formatters';
+
+type Nav = NativeStackNavigationProp<ProfileStackParamList, 'ViewProfile'>;
+
+const ViewProfileScreen: React.FC = () => {
+  const { colors, spacing } = useTheme();
+  const navigation = useNavigation<Nav>();
+  const { user } = useAuth();
+  const { profile, loading, refresh } = useProfileContext();
+
+  if (loading && !profile) {
+    return <LoadingIndicator fullScreen />;
+  }
+
+  const initials = (user?.name ?? '?')
+    .split(' ')
+    .map(w => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
+  return (
+    <Screen scroll refreshing={loading} onRefresh={refresh}>
+      <View style={{ alignItems: 'center', marginBottom: spacing.xl }}>
+        <View
+          style={{
+            width: 84,
+            height: 84,
+            borderRadius: 42,
+            backgroundColor: colors.primary,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: spacing.sm,
+          }}
+        >
+          <AppText variant="h1" style={{ color: colors.onPrimary }}>
+            {initials}
+          </AppText>
+        </View>
+        <AppText variant="h2">{user?.name}</AppText>
+        <AppText variant="body" color="secondary">
+          {user?.email}
+        </AppText>
+      </View>
+
+      <Card style={{ marginBottom: spacing.md }}>
+        <AppText variant="bodyMedium" color="secondary" style={{ marginBottom: spacing.sm }}>
+          Budget Overview
+        </AppText>
+        <StatRow
+          icon="cash"
+          label="Monthly Income"
+          value={formatCurrency(profile?.monthlyIncome ?? 0, profile?.currency)}
+        />
+        <StatRow
+          icon="piggy-bank-outline"
+          label="Savings Goal"
+          value={formatCurrency(profile?.savingsGoal ?? 0, profile?.currency)}
+        />
+        <StatRow
+          icon="wallet-outline"
+          label="Spending Budget"
+          value={formatCurrency(profile?.spendingBudget ?? 0, profile?.currency)}
+          isLast
+        />
+      </Card>
+
+      <PrimaryButton
+        label="Edit Profile"
+        icon="pencil-outline"
+        variant="outline"
+        onPress={() => navigation.navigate('EditProfile')}
+      />
+    </Screen>
+  );
+};
+
+const StatRow: React.FC<{
+  icon: string;
+  label: string;
+  value: string;
+  isLast?: boolean;
+}> = ({ icon, label, value, isLast }) => {
+  const { colors, spacing, radius } = useTheme();
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: spacing.sm,
+        borderBottomWidth: isLast ? 0 : 1,
+        borderBottomColor: colors.divider,
+      }}
+    >
+      <View
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: radius.sm,
+          backgroundColor: colors.surfaceAlt,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginRight: spacing.sm,
+        }}
+      >
+        <Icon name={icon} size={18} color={colors.primary} />
+      </View>
+      <AppText variant="body" style={{ flex: 1 }} color="secondary">
+        {label}
+      </AppText>
+      <AppText variant="bodyMedium">{value}</AppText>
+    </View>
+  );
+};
+
+export default ViewProfileScreen;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\screens\Settings\SettingsScreen.tsx ===
+import React, { useState } from 'react';
+import { TouchableOpacity, View } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Screen } from '../../components/common/Screen';
+import { AppText } from '../../components/common/AppText';
+import { Card } from '../../components/cards/Card';
+import { ConfirmModal } from '../../components/modals/ConfirmModal';
+import { useTheme, ThemeMode } from '../../theme/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
+
+const THEME_OPTIONS: { mode: ThemeMode; label: string; icon: string }[] = [
+  { mode: 'light', label: 'Light', icon: 'white-balance-sunny' },
+  { mode: 'dark', label: 'Dark', icon: 'weather-night' },
+  { mode: 'system', label: 'System', icon: 'cellphone-cog' },
+];
+
+const SettingsScreen: React.FC = () => {
+  const { colors, spacing, radius, mode, setMode } = useTheme();
+  const { logout, user } = useAuth();
+  const [confirmLogout, setConfirmLogout] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    await logout();
+    setLoggingOut(false);
+    setConfirmLogout(false);
+  };
+
+  return (
+    <>
+      <Screen scroll>
+        <AppText variant="h1" style={{ marginBottom: spacing.lg }}>
+          Settings
+        </AppText>
+
+        <Card style={{ marginBottom: spacing.md }}>
+          <AppText variant="bodyMedium" color="secondary" style={{ marginBottom: spacing.sm }}>
+            Appearance
+          </AppText>
+          {THEME_OPTIONS.map((opt, index) => {
+            const selected = mode === opt.mode;
+            return (
+              <TouchableOpacity
+                key={opt.mode}
+                onPress={() => setMode(opt.mode)}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  paddingVertical: spacing.sm,
+                  borderBottomWidth: index !== THEME_OPTIONS.length - 1 ? 1 : 0,
+                  borderBottomColor: colors.divider,
+                }}
+              >
+                <View
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: radius.sm,
+                    backgroundColor: selected ? colors.primaryLight : colors.surfaceAlt,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginRight: spacing.sm,
+                  }}
+                >
+                  <Icon
+                    name={opt.icon}
+                    size={18}
+                    color={selected ? colors.primary : colors.textSecondary}
+                  />
+                </View>
+                <AppText variant="body" style={{ flex: 1 }}>
+                  {opt.label}
+                </AppText>
+                {selected ? (
+                  <Icon name="check" size={20} color={colors.primary} />
+                ) : null}
+              </TouchableOpacity>
+            );
+          })}
+        </Card>
+
+        <Card style={{ marginBottom: spacing.md }}>
+          <AppText variant="bodyMedium" color="secondary" style={{ marginBottom: spacing.sm }}>
+            Account
+          </AppText>
+          <AppText variant="body">{user?.name}</AppText>
+          <AppText variant="caption" color="muted">
+            {user?.email}
+          </AppText>
+        </Card>
+
+        <TouchableOpacity
+          onPress={() => setConfirmLogout(true)}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingVertical: spacing.sm,
+          }}
+        >
+          <Icon name="logout" size={18} color={colors.danger} />
+          <View style={{ marginLeft: spacing.xs }}>
+            <AppText variant="bodyMedium" color="danger">
+              Log Out
+            </AppText>
+          </View>
+        </TouchableOpacity>
+      </Screen>
+
+      <ConfirmModal
+        visible={confirmLogout}
+        title="Log out?"
+        message="You'll need to log in again to access your account."
+        confirmLabel="Log Out"
+        destructive
+        loading={loggingOut}
+        onConfirm={handleLogout}
+        onCancel={() => setConfirmLogout(false)}
+      />
+    </>
+  );
+};
+
+export default SettingsScreen;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\services\api\authService.ts ===
+import { apiClient } from './client';
+import {
+  ApiSuccess,
+  LoginRequest,
+  LoginResponseData,
+  RegisterRequest,
+} from '../../types/api';
+import { User } from '../../types/models';
+
+export const authService = {
+  async register(payload: RegisterRequest): Promise<User> {
+    const res = await apiClient.post<ApiSuccess<User>>(
+      '/api/auth/register',
+      payload,
+    );
+    return res.data.data;
+  },
+
+  async login(payload: LoginRequest): Promise<LoginResponseData> {
+    const res = await apiClient.post<ApiSuccess<LoginResponseData>>(
+      '/api/auth/login',
+      payload,
+    );
+    return res.data.data;
+  },
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\services\api\client.ts ===
+import axios, { AxiosError, AxiosInstance } from 'axios';
+import { API_BASE_URL, API_TIMEOUT_MS } from '../../constants/config';
+import { StorageKeys } from '../../constants/storageKeys';
+import { getItem } from '../../storage/asyncStorage';
+import { appEvents, APP_EVENTS } from '../../utils/eventEmitter';
+
+export const apiClient: AxiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: API_TIMEOUT_MS,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+apiClient.interceptors.request.use(async config => {
+  const token = await getItem<string>(StorageKeys.AUTH_TOKEN);
+  if (token) {
+    config.headers = config.headers ?? {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+/** Normalized error shape every service call can rely on. */
+export interface ApiErrorInfo {
+  status: number | null;
+  message: string;
+}
+
+export function parseApiError(error: unknown): ApiErrorInfo {
+  if (axios.isAxiosError(error)) {
+    const axiosError = error as AxiosError<{ message?: string }>;
+    const status = axiosError.response?.status ?? null;
+    const message =
+      axiosError.response?.data?.message ??
+      (axiosError.code === 'ECONNABORTED'
+        ? 'Request timed out. Please check your connection.'
+        : !axiosError.response
+        ? 'Unable to reach the server. Please check your connection.'
+        : 'Something went wrong. Please try again.');
+    return { status, message };
+  }
+  return { status: null, message: 'Something went wrong. Please try again.' };
+}
+
+apiClient.interceptors.response.use(
+  response => response,
+  error => {
+    const info = parseApiError(error);
+    if (info.status === 401) {
+      appEvents.emit(APP_EVENTS.UNAUTHORIZED);
+    }
+    return Promise.reject(error);
+  },
+);
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\services\api\dashboardService.ts ===
+import { apiClient } from './client';
+import { ApiSuccess } from '../../types/api';
+import { DashboardData } from '../../types/models';
+
+export const dashboardService = {
+  async getDashboard(): Promise<DashboardData> {
+    // Backend returns { success, data: {...} } once /api/dashboard is mounted.
+    const res = await apiClient.get<ApiSuccess<DashboardData>>(
+      '/api/dashboard',
+    );
+    return res.data.data;
+  },
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\services\api\expenseService.ts ===
+import { apiClient } from './client';
+import {
+  CreateExpenseRequest,
+  ExpenseListResponse,
+  ExpenseResponse,
+  UpdateExpenseRequest,
+} from '../../types/api';
+import { Expense } from '../../types/models';
+
+export const expenseService = {
+  async getExpenses(): Promise<Expense[]> {
+    const res = await apiClient.get<ExpenseListResponse>('/api/expenses');
+    return res.data.data;
+  },
+
+  async getExpenseById(id: string): Promise<Expense> {
+    const res = await apiClient.get<ExpenseResponse>(`/api/expenses/${id}`);
+    return res.data.data;
+  },
+
+  async createExpense(payload: CreateExpenseRequest): Promise<Expense> {
+    const res = await apiClient.post<ExpenseResponse>(
+      '/api/expenses',
+      payload,
+    );
+    return res.data.data;
+  },
+
+  async updateExpense(
+    id: string,
+    payload: UpdateExpenseRequest,
+  ): Promise<Expense> {
+    const res = await apiClient.put<ExpenseResponse>(
+      `/api/expenses/${id}`,
+      payload,
+    );
+    return res.data.data;
+  },
+
+  async deleteExpense(id: string): Promise<void> {
+    await apiClient.delete(`/api/expenses/${id}`);
+  },
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\services\api\index.ts ===
+export * from './client';
+export * from './authService';
+export * from './profileService';
+export * from './expenseService';
+export * from './dashboardService';
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\services\api\profileService.ts ===
+import { apiClient } from './client';
+import { ProfileRequest, ProfileResponse } from '../../types/api';
+import { UserProfile } from '../../types/models';
+
+export const profileService = {
+  async getProfile(): Promise<UserProfile> {
+    const res = await apiClient.get<ProfileResponse>('/api/profile');
+    return res.data.profile;
+  },
+
+  async createProfile(payload: ProfileRequest): Promise<UserProfile> {
+    const res = await apiClient.post<ProfileResponse>(
+      '/api/profile',
+      payload,
+    );
+    return res.data.profile;
+  },
+
+  async updateProfile(payload: ProfileRequest): Promise<UserProfile> {
+    const res = await apiClient.put<ProfileResponse>('/api/profile', payload);
+    return res.data.profile;
+  },
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\storage\asyncStorage.ts ===
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+export async function getItem<T>(key: string): Promise<T | null> {
+  try {
+    const raw = await AsyncStorage.getItem(key);
+    if (raw === null) return null;
+    try {
+      return JSON.parse(raw) as T;
+    } catch {
+      // Value was stored as a plain string (e.g. the raw token).
+      return raw as unknown as T;
+    }
+  } catch (error) {
+    console.warn(`[storage] Failed to read "${key}"`, error);
+    return null;
+  }
+}
+
+export async function setItem<T>(key: string, value: T): Promise<void> {
+  try {
+    const raw = typeof value === 'string' ? value : JSON.stringify(value);
+    await AsyncStorage.setItem(key, raw);
+  } catch (error) {
+    console.warn(`[storage] Failed to write "${key}"`, error);
+  }
+}
+
+export async function removeItem(key: string): Promise<void> {
+  try {
+    await AsyncStorage.removeItem(key);
+  } catch (error) {
+    console.warn(`[storage] Failed to remove "${key}"`, error);
+  }
+}
+
+export async function clearAll(): Promise<void> {
+  try {
+    await AsyncStorage.clear();
+  } catch (error) {
+    console.warn('[storage] Failed to clear storage', error);
+  }
+}
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\theme\colors.ts ===
+/**
+ * FinSight color tokens.
+ * A deliberate "financial clarity" palette: deep indigo primary (trust, focus),
+ * emerald for positive/income signals, amber/red reserved strictly for spend warnings.
+ * Not the default Claude-orange-on-cream look â€” this is a finance app, so it leans
+ * into ink, paper, and a single confident accent.
+ */
+
+export const palette = {
+  indigo50: '#EEF1FF',
+  indigo100: '#D9DFFF',
+  indigo300: '#8C97F0',
+  indigo500: '#4B4FDE',
+  indigo600: '#3A3DC7',
+  indigo700: '#2C2EA3',
+  indigo900: '#1B1B5C',
+
+  emerald300: '#7FDCB3',
+  emerald500: '#2CB67D',
+  emerald700: '#1E8A5C',
+
+  amber400: '#F5B942',
+  amber600: '#D89420',
+
+  red400: '#F0776B',
+  red500: '#E5534B',
+  red700: '#B23A34',
+
+  ink900: '#12131A',
+  ink800: '#1B1D29',
+  ink700: '#262838',
+  ink600: '#383B52',
+  ink400: '#6C6F8C',
+  ink300: '#9497B3',
+  ink100: '#DBDCE8',
+
+  paper0: '#FFFFFF',
+  paper50: '#F7F7FB',
+  paper100: '#EFEFF6',
+
+  white: '#FFFFFF',
+  black: '#000000',
+  transparent: 'transparent',
+};
+
+export interface ThemeColors {
+  background: string;
+  surface: string;
+  surfaceAlt: string;
+  card: string;
+  border: string;
+  divider: string;
+
+  textPrimary: string;
+  textSecondary: string;
+  textMuted: string;
+  textInverse: string;
+
+  primary: string;
+  primaryDark: string;
+  primaryLight: string;
+  onPrimary: string;
+
+  success: string;
+  successBg: string;
+  warning: string;
+  warningBg: string;
+  danger: string;
+  dangerBg: string;
+
+  chartPalette: string[];
+
+  shadow: string;
+  overlay: string;
+  skeleton: string;
+  inputBg: string;
+  tabInactive: string;
+}
+
+export const lightColors: ThemeColors = {
+  background: palette.paper50,
+  surface: palette.paper0,
+  surfaceAlt: palette.paper100,
+  card: palette.paper0,
+  border: palette.ink100,
+  divider: palette.ink100,
+
+  textPrimary: palette.ink900,
+  textSecondary: palette.ink600,
+  textMuted: palette.ink300,
+  textInverse: palette.paper0,
+
+  primary: palette.indigo600,
+  primaryDark: palette.indigo900,
+  primaryLight: palette.indigo100,
+  onPrimary: palette.white,
+
+  success: palette.emerald700,
+  successBg: '#E5F7EE',
+  warning: palette.amber600,
+  warningBg: '#FEF4E1',
+  danger: palette.red500,
+  dangerBg: '#FCEAE9',
+
+  chartPalette: [
+    palette.indigo500,
+    palette.emerald500,
+    palette.amber400,
+    palette.red400,
+    palette.indigo300,
+    '#8E5CD9',
+    '#28A7C9',
+    '#D9738C',
+    palette.ink400,
+    '#5C8AD9',
+    '#C97BD9',
+    palette.ink300,
+  ],
+
+  shadow: 'rgba(18, 19, 26, 0.10)',
+  overlay: 'rgba(18, 19, 26, 0.55)',
+  skeleton: palette.paper100,
+  inputBg: palette.paper50,
+  tabInactive: palette.ink300,
+};
+
+export const darkColors: ThemeColors = {
+  background: palette.ink900,
+  surface: palette.ink800,
+  surfaceAlt: palette.ink700,
+  card: palette.ink800,
+  border: palette.ink600,
+  divider: palette.ink600,
+
+  textPrimary: palette.paper0,
+  textSecondary: palette.ink100,
+  textMuted: palette.ink300,
+  textInverse: palette.ink900,
+
+  primary: palette.indigo300,
+  primaryDark: palette.indigo500,
+  primaryLight: palette.ink700,
+  onPrimary: palette.ink900,
+
+  success: palette.emerald300,
+  successBg: 'rgba(44, 182, 125, 0.16)',
+  warning: palette.amber400,
+  warningBg: 'rgba(245, 185, 66, 0.16)',
+  danger: palette.red400,
+  dangerBg: 'rgba(229, 83, 75, 0.16)',
+
+  chartPalette: [
+    palette.indigo300,
+    palette.emerald300,
+    palette.amber400,
+    palette.red400,
+    palette.indigo100,
+    '#B79BF0',
+    '#6FC7E3',
+    '#E3A0B3',
+    palette.ink100,
+    '#9CB6F0',
+    '#E0B0F0',
+    palette.ink300,
+  ],
+
+  shadow: 'rgba(0, 0, 0, 0.4)',
+  overlay: 'rgba(0, 0, 0, 0.65)',
+  skeleton: palette.ink700,
+  inputBg: palette.ink700,
+  tabInactive: palette.ink400,
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\theme\ThemeContext.tsx ===
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  PropsWithChildren,
+} from 'react';
+import { Appearance, ColorSchemeName } from 'react-native';
+import { darkColors, lightColors, ThemeColors } from './colors';
+import { typography, spacing, radius, shadow } from './typography';
+import { StorageKeys } from '../constants/storageKeys';
+import { getItem, setItem } from '../storage/asyncStorage';
+
+export type ThemeMode = 'light' | 'dark' | 'system';
+
+interface ThemeContextValue {
+  mode: ThemeMode;
+  isDark: boolean;
+  colors: ThemeColors;
+  typography: typeof typography;
+  spacing: typeof spacing;
+  radius: typeof radius;
+  shadow: typeof shadow;
+  setMode: (mode: ThemeMode) => void;
+}
+
+const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+
+export const ThemeProvider: React.FC<PropsWithChildren> = ({ children }) => {
+  const [mode, setModeState] = useState<ThemeMode>('system');
+  const [systemScheme, setSystemScheme] = useState<ColorSchemeName>(
+    () => Appearance.getColorScheme() ?? 'light',
+  );
+
+  useEffect(() => {
+    (async () => {
+      const saved = await getItem<ThemeMode>(StorageKeys.THEME_MODE);
+      if (saved) {
+        setModeState(saved);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    const sub = Appearance.addChangeListener(({ colorScheme }) => {
+      setSystemScheme(colorScheme);
+    });
+    return () => sub.remove();
+  }, []);
+
+  const setMode = (next: ThemeMode) => {
+    setModeState(next);
+    setItem(StorageKeys.THEME_MODE, next);
+  };
+
+  const isDark =
+    mode === 'dark' || (mode === 'system' && systemScheme === 'dark');
+
+  const value = useMemo<ThemeContextValue>(
+    () => ({
+      mode,
+      isDark,
+      colors: isDark ? darkColors : lightColors,
+      typography,
+      spacing,
+      radius,
+      shadow,
+      setMode,
+    }),
+    [mode, isDark],
+  );
+
+  return (
+    <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  );
+};
+
+export const useTheme = (): ThemeContextValue => {
+  const ctx = useContext(ThemeContext);
+  if (!ctx) {
+    throw new Error('useTheme must be used within a ThemeProvider');
+  }
+  return ctx;
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\theme\typography.ts ===
+import { Platform } from 'react-native';
+
+const fontFamily = Platform.select({
+  ios: {
+    regular: 'System',
+    medium: 'System',
+    semibold: 'System',
+    bold: 'System',
+  },
+  android: {
+    regular: 'sans-serif',
+    medium: 'sans-serif-medium',
+    semibold: 'sans-serif-medium',
+    bold: 'sans-serif',
+  },
+  default: {
+    regular: 'System',
+    medium: 'System',
+    semibold: 'System',
+    bold: 'System',
+  },
+})!;
+
+export const typography = {
+  fontFamily,
+  display: {
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: '700' as const,
+    letterSpacing: -0.5,
+  },
+  h1: {
+    fontSize: 28,
+    lineHeight: 34,
+    fontWeight: '700' as const,
+    letterSpacing: -0.3,
+  },
+  h2: {
+    fontSize: 22,
+    lineHeight: 28,
+    fontWeight: '700' as const,
+    letterSpacing: -0.2,
+  },
+  h3: {
+    fontSize: 18,
+    lineHeight: 24,
+    fontWeight: '600' as const,
+  },
+  bodyLarge: {
+    fontSize: 16,
+    lineHeight: 24,
+    fontWeight: '400' as const,
+  },
+  body: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '400' as const,
+  },
+  bodyMedium: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '600' as const,
+  },
+  caption: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: '500' as const,
+  },
+  overline: {
+    fontSize: 11,
+    lineHeight: 14,
+    fontWeight: '700' as const,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase' as const,
+  },
+  numericLarge: {
+    fontSize: 36,
+    lineHeight: 42,
+    fontWeight: '700' as const,
+    letterSpacing: -0.5,
+  },
+  numericMedium: {
+    fontSize: 20,
+    lineHeight: 26,
+    fontWeight: '700' as const,
+  },
+};
+
+export const spacing = {
+  xxs: 4,
+  xs: 8,
+  sm: 12,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 40,
+  xxxl: 56,
+};
+
+export const radius = {
+  xs: 6,
+  sm: 10,
+  md: 14,
+  lg: 20,
+  xl: 28,
+  pill: 999,
+};
+
+export const shadow = {
+  sm: {
+    shadowColor: '#12131A',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  md: {
+    shadowColor: '#12131A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 4,
+  },
+  lg: {
+    shadowColor: '#12131A',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.12,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+};
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\types\api.ts ===
+import { Expense, User, UserProfile } from './models';
+
+/** Generic shape used by most FinSight endpoints. */
+export interface ApiSuccess<T> {
+  success: true;
+  message?: string;
+  data: T;
+}
+
+export interface ApiError {
+  success: false;
+  message: string;
+}
+
+// ---- Auth ----
+export interface RegisterRequest {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponseData {
+  token: string;
+  user: User;
+}
+
+// ---- Profile ----
+// NOTE: profile endpoints respond with `profile`, not `data` â€” matches
+// controllers/profile.controller.ts exactly.
+export interface ProfileResponse {
+  success: boolean;
+  message?: string;
+  profile: UserProfile;
+}
+
+export interface ProfileRequest {
+  monthlyIncome: number;
+  savingsGoal: number;
+}
+
+// ---- Expenses ----
+export interface CreateExpenseRequest {
+  amount: number;
+  category: string;
+  notes?: string;
+  expenseDate: string;
+  receiptUrl?: string;
+}
+
+export type UpdateExpenseRequest = Partial<CreateExpenseRequest>;
+
+export type ExpenseResponse = ApiSuccess<Expense>;
+export type ExpenseListResponse = ApiSuccess<Expense[]>;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\types\models.ts ===
+/**
+ * Types mirrored directly from the FinSight backend (Prisma models + controllers).
+ * Do not add fields that don't exist on the backend response shapes.
+ */
+
+export type ExpenseCategory =
+  | 'FOOD'
+  | 'RENT'
+  | 'TRANSPORT'
+  | 'SHOPPING'
+  | 'ENTERTAINMENT'
+  | 'LIFESTYLE'
+  | 'HEALTH'
+  | 'EDUCATION'
+  | 'UTILITIES'
+  | 'TRAVEL'
+  | 'DATING'
+  | 'OTHER';
+
+export const EXPENSE_CATEGORIES: ExpenseCategory[] = [
+  'FOOD',
+  'RENT',
+  'TRANSPORT',
+  'SHOPPING',
+  'ENTERTAINMENT',
+  'LIFESTYLE',
+  'HEALTH',
+  'EDUCATION',
+  'UTILITIES',
+  'TRAVEL',
+  'DATING',
+  'OTHER',
+];
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface UserProfile {
+  id: string;
+  monthlyIncome: number;
+  savingsGoal: number;
+  currency: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  /** Only present on GET /api/profile â€” computed server-side. */
+  spendingBudget?: number;
+}
+
+export interface Expense {
+  id: string;
+  amount: number;
+  category: ExpenseCategory;
+  notes: string | null;
+  expenseDate: string;
+  receiptUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+}
+
+export interface DashboardData {
+  monthlyIncome: number;
+  savingsGoal: number;
+  spendingBudget: number;
+  totalSpent: number;
+  remainingBudget: number;
+  totalExpenses: number;
+  topCategory: string;
+  categoryBreakdown: Record<string, number>;
+  recentExpenses: Expense[];
+}
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\types\navigation.ts ===
+import { NavigatorScreenParams } from '@react-navigation/native';
+import { Expense } from './models';
+
+export type AuthStackParamList = {
+  Login: undefined;
+  Register: undefined;
+};
+
+export type DashboardStackParamList = {
+  DashboardHome: undefined;
+  ExpenseDetails: { expenseId: string };
+};
+
+export type ExpenseStackParamList = {
+  ExpenseList: undefined;
+  ExpenseDetails: { expenseId: string };
+  AddExpense: { prefill?: Partial<Expense>; receiptUri?: string } | undefined;
+  EditExpense: { expenseId: string };
+  OCRScan: undefined;
+};
+
+export type ProfileStackParamList = {
+  ViewProfile: undefined;
+  EditProfile: undefined;
+};
+
+export type SettingsStackParamList = {
+  SettingsHome: undefined;
+};
+
+export type MainTabParamList = {
+  DashboardTab: NavigatorScreenParams<DashboardStackParamList>;
+  ExpensesTab: NavigatorScreenParams<ExpenseStackParamList>;
+  ProfileTab: NavigatorScreenParams<ProfileStackParamList>;
+  SettingsTab: NavigatorScreenParams<SettingsStackParamList>;
+};
+
+export type RootStackParamList = {
+  Auth: NavigatorScreenParams<AuthStackParamList>;
+  Main: NavigatorScreenParams<MainTabParamList>;
+};
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace ReactNavigation {
+    interface RootParamList extends RootStackParamList {}
+  }
+}
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\utils\eventEmitter.ts ===
+type Listener = (...args: any[]) => void;
+
+class EventEmitter {
+  private listeners: Record<string, Listener[]> = {};
+
+  on(event: string, listener: Listener): () => void {
+    if (!this.listeners[event]) this.listeners[event] = [];
+    this.listeners[event].push(listener);
+    return () => this.off(event, listener);
+  }
+
+  off(event: string, listener: Listener): void {
+    this.listeners[event] = (this.listeners[event] || []).filter(
+      l => l !== listener,
+    );
+  }
+
+  emit(event: string, ...args: any[]): void {
+    (this.listeners[event] || []).forEach(l => l(...args));
+  }
+}
+
+export const appEvents = new EventEmitter();
+
+export const APP_EVENTS = {
+  UNAUTHORIZED: 'UNAUTHORIZED',
+} as const;
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\utils\formatters.ts ===
+/**
+ * Formats a number as currency. Falls back gracefully if the currency
+ * code from the backend profile isn't a valid ISO code Intl recognizes.
+ */
+export function formatCurrency(amount: number, currency = 'USD'): string {
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  } catch {
+    return `${currency} ${amount.toFixed(2)}`;
+  }
+}
+
+export function formatDate(dateInput: string | Date): string {
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+  return date.toLocaleDateString('en-US', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
+export function formatDateShort(dateInput: string | Date): string {
+  const date = typeof dateInput === 'string' ? new Date(dateInput) : dateInput;
+  return date.toLocaleDateString('en-US', {
+    day: '2-digit',
+    month: 'short',
+  });
+}
+
+/** Returns a yyyy-MM-dd string suitable for sending as `expenseDate`. */
+export function toISODateOnly(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\utils\ocrParser.ts ===
+import { CATEGORY_KEYWORDS } from '../constants/categories';
+import { ExpenseCategory } from '../types/models';
+
+/**
+ * Looks for the most likely "total" amount on a receipt. Receipts print many
+ * numbers (subtotal, tax, line items) â€” we bias toward lines containing a
+ * total-like keyword, and fall back to the largest currency-shaped number
+ * found anywhere in the text.
+ */
+export function parseAmountFromReceipt(text: string): number | null {
+  const lines = text.split('\n');
+  const totalKeywords = /\b(total|amount due|grand total|balance due|amount)\b/i;
+  const currencyNumber = /(?:[$â‚¬Â£â‚¹]\s?)?(\d{1,3}(?:[,.\s]\d{3})*(?:[.,]\d{2})?)/g;
+
+  let bestFromKeywordLine: number | null = null;
+  for (const line of lines) {
+    if (totalKeywords.test(line)) {
+      const matches = [...line.matchAll(currencyNumber)];
+      if (matches.length) {
+        const last = matches[matches.length - 1][1];
+        const value = normalizeNumber(last);
+        if (value !== null) {
+          bestFromKeywordLine = value;
+        }
+      }
+    }
+  }
+  if (bestFromKeywordLine !== null) return bestFromKeywordLine;
+
+  // Fallback: largest plausible currency amount in the whole receipt.
+  const allMatches = [...text.matchAll(currencyNumber)]
+    .map(m => normalizeNumber(m[1]))
+    .filter((n): n is number => n !== null && n > 0 && n < 100000);
+
+  if (!allMatches.length) return null;
+  return Math.max(...allMatches);
+}
+
+function normalizeNumber(raw: string): number | null {
+  // Strip thousands separators, keep last dot/comma as decimal point.
+  const cleaned = raw.replace(/\s/g, '');
+  const lastComma = cleaned.lastIndexOf(',');
+  const lastDot = cleaned.lastIndexOf('.');
+  let normalized = cleaned;
+  if (lastComma > lastDot) {
+    normalized = cleaned.replace(/\./g, '').replace(',', '.');
+  } else {
+    normalized = cleaned.replace(/,/g, '');
+  }
+  const value = parseFloat(normalized);
+  return Number.isFinite(value) ? value : null;
+}
+
+const DATE_PATTERNS: RegExp[] = [
+  /\b(\d{4})[-/](\d{1,2})[-/](\d{1,2})\b/, // yyyy-mm-dd
+  /\b(\d{1,2})[-/](\d{1,2})[-/](\d{2,4})\b/, // dd-mm-yyyy or mm-dd-yyyy
+  /\b(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(\d{2,4})\b/i,
+];
+
+export function parseDateFromReceipt(text: string): Date | null {
+  for (const pattern of DATE_PATTERNS) {
+    const match = text.match(pattern);
+    if (!match) continue;
+
+    if (pattern === DATE_PATTERNS[0]) {
+      const [, y, m, d] = match;
+      const date = new Date(Number(y), Number(m) - 1, Number(d));
+      if (isValidDate(date)) return date;
+    } else if (pattern === DATE_PATTERNS[1]) {
+      const [, a, b, y] = match;
+      const year = y.length === 2 ? 2000 + Number(y) : Number(y);
+      // Assume day/month order (common outside the US); if day > 12 this is
+      // unambiguous, otherwise it's a best guess.
+      const day = Number(a) > 12 ? Number(a) : Number(a);
+      const month = Number(a) > 12 ? Number(b) : Number(a);
+      const date = new Date(year, (Number(a) > 12 ? Number(b) : month) - 1, day);
+      if (isValidDate(date)) return date;
+    } else {
+      const [, d, mon, y] = match;
+      const year = y.length === 2 ? 2000 + Number(y) : Number(y);
+      const monthIndex = MONTHS.findIndex(m =>
+        mon.toLowerCase().startsWith(m),
+      );
+      if (monthIndex >= 0) {
+        const date = new Date(year, monthIndex, Number(d));
+        if (isValidDate(date)) return date;
+      }
+    }
+  }
+  return null;
+}
+
+const MONTHS = [
+  'jan', 'feb', 'mar', 'apr', 'may', 'jun',
+  'jul', 'aug', 'sep', 'oct', 'nov', 'dec',
+];
+
+function isValidDate(date: Date): boolean {
+  return !Number.isNaN(date.getTime()) && date <= new Date();
+}
+
+export function suggestCategoryFromReceipt(text: string): ExpenseCategory {
+  const lower = text.toLowerCase();
+  let bestCategory: ExpenseCategory = 'OTHER';
+  let bestScore = 0;
+
+  (Object.keys(CATEGORY_KEYWORDS) as ExpenseCategory[]).forEach(category => {
+    const keywords = CATEGORY_KEYWORDS[category];
+    const score = keywords.reduce(
+      (count, keyword) => (lower.includes(keyword) ? count + 1 : count),
+      0,
+    );
+    if (score > bestScore) {
+      bestScore = score;
+      bestCategory = category;
+    }
+  });
+
+  return bestCategory;
+}
+
+=== C:\Users\piyus\OneDrive\Desktop\FinSight\FinSight\Frontend\src\utils\validators.ts ===
+export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export const validators = {
+  required: (message = 'This field is required') => ({
+    required: message,
+  }),
+  email: {
+    required: 'Email is required',
+    pattern: {
+      value: EMAIL_REGEX,
+      message: 'Enter a valid email address',
+    },
+  },
+  password: {
+    required: 'Password is required',
+    minLength: {
+      value: 6,
+      message: 'Password must be at least 6 characters',
+    },
+  },
+  name: {
+    required: 'Name is required',
+    minLength: {
+      value: 2,
+      message: 'Name must be at least 2 characters',
+    },
+  },
+  positiveAmount: {
+    required: 'Amount is required',
+    validate: (value: string | number) =>
+      Number(value) > 0 || 'Amount must be greater than zero',
+  },
+};
+
